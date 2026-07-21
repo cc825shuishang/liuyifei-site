@@ -210,7 +210,7 @@
         </a>
         <a class="sidebar-link sidebar-link-inactive" data-page="images">
           <i data-lucide="image" class="w-5 h-5"></i>
-          <span>主页图片管理</span>
+          <span>主页封面与写真</span>
         </a>
         <a class="sidebar-link sidebar-link-inactive" data-page="account">
           <i data-lucide="user-cog" class="w-5 h-5"></i>
@@ -437,7 +437,7 @@
       timeline: { title: '演艺历程', render: renderTimeline },
       endorsements: { title: '代言商务', render: renderEndorsements },
       settings: { title: '站点设置', render: renderSettings },
-      images: { title: '主页图片管理', render: renderImages },
+      images: { title: '主页封面与写真', render: renderImages },
       account: { title: '账户管理', render: renderAccount },
       data: { title: '数据管理', render: renderData },
     };
@@ -1411,6 +1411,74 @@
       }
     }
 
+
+    // ==================== 主页图片上传 ====================
+    let pendingHomeFiles = { hero: null, about: null };
+
+    function handleHomeDragOver(e, type) {
+      e.preventDefault();
+      const zone = document.getElementById(type + '-drop-zone');
+      if (zone) zone.classList.add('border-cinema-gold/50', 'bg-white/[0.05]');
+    }
+    function handleHomeDragLeave(e, type) {
+      e.preventDefault();
+      const zone = document.getElementById(type + '-drop-zone');
+      if (zone) zone.classList.remove('border-cinema-gold/50', 'bg-white/[0.05]');
+    }
+    function handleHomeDrop(e, type) {
+      e.preventDefault();
+      const zone = document.getElementById(type + '-drop-zone');
+      if (zone) zone.classList.remove('border-cinema-gold/50', 'bg-white/[0.05]');
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) handleHomeFileSelected(type, files[0]);
+    }
+    function handleHomeFileSelect(type, input) {
+      if (input.files && input.files.length > 0) handleHomeFileSelected(type, input.files[0]);
+    }
+    function handleHomeFileSelected(type, file) {
+      if (!file.type.startsWith('image/')) { showToast('请选择图片文件', 'error'); return; }
+      pendingHomeFiles[type] = file;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        const area = document.getElementById(type + '-preview-area');
+        if (area) area.innerHTML = '<img src="' + ev.target.result + '" class="max-h-32 rounded-lg object-cover">';
+        const btn = document.getElementById(type + '-save-btn');
+        if (btn) btn.classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+      };
+      reader.readAsDataURL(file);
+    }
+    async function uploadHomeImage(type) {
+      const file = pendingHomeFiles[type];
+      if (!file) { showToast('请先选择图片', 'error'); return; }
+      const filename = type === 'hero' ? 'hero.jpg' : 'about.jpg';
+      const btn = document.getElementById(type + '-save-btn');
+      const btnHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> 上传中...';
+      if (window.lucide) lucide.createIcons();
+      try {
+        await uploadSingleToGitHub(file, filename);
+        const images = DB.get('images', []);
+        const idx = images.findIndex(i => i.name === filename);
+        const today = new Date().toISOString().split('T')[0];
+        if (idx >= 0) {
+          images[idx].uploadedAt = today;
+        } else {
+          images.push({ id: Date.now(), name: filename, path: 'images/' + filename, desc: type === 'hero' ? '主海报/首页背景' : '关于演员写真', category: type === 'hero' ? '海报' : '写真', date: today, location: '', author: '', uploadedAt: today });
+        }
+        DB.set('images', images);
+        pendingHomeFiles[type] = null;
+        showToast('图片已保存到云端', 'success');
+        navigateTo('images');
+      } catch (err) {
+        showToast('上传失败：' + (err.message || '未知错误'), 'error');
+        btn.disabled = false;
+        btn.innerHTML = btnHtml;
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+
     function getFilteredImages() {
       let images = DB.get('images', []);
       const s = imgState;
@@ -1431,104 +1499,95 @@
 
     function renderImages() {
       const allImages = DB.get('images', []);
-      const filtered = getFilteredImages();
-      const categories = [...new Set(allImages.map(i => i.category).filter(Boolean))];
-      const selCount = imgState.selectedIds.length;
-      const s = imgState;
+      const heroImg = allImages.find(i => i.name === 'hero.jpg') || { path: 'images/hero.jpg', desc: '主海报/首页背景' };
+      const aboutImg = allImages.find(i => i.name === 'about.jpg') || { path: 'images/about.jpg', desc: '关于演员写真' };
+      const ts = Date.now();
 
       return `
-        <div class="space-y-5">
-          <!-- 拖拽上传区 -->
-          <div id="drop-zone" class="glass-card border-2 border-dashed border-white/15 rounded-2xl p-8 text-center transition-all duration-300 cursor-pointer hover:border-cinema-gold/50 hover:bg-white/[0.03]"
-               ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" onclick="document.getElementById('file-input').click()">
-            <div class="flex flex-col items-center gap-2">
-              <div class="w-14 h-14 rounded-full bg-cinema-gold/10 flex items-center justify-center">
-                <i data-lucide="upload-cloud" class="w-7 h-7 text-cinema-gold"></i>
+        <div class="space-y-6">
+          <!-- 说明 -->
+          <div class="glass-card p-4 flex items-start gap-3">
+            <i data-lucide="info" class="w-5 h-5 text-cinema-gold flex-shrink-0 mt-0.5"></i>
+            <p class="text-cinema-gray text-sm leading-relaxed">此页面仅管理主页封面与演员写真两张图片。剧照封面请在「作品管理」中编辑，历程图片请在「演艺历程」中编辑，代言图片请在「代言商务」中编辑。</p>
+          </div>
+
+          <!-- 主页封面 -->
+          <div class="glass-card p-6">
+            <div class="flex items-center gap-3 mb-5">
+              <div class="w-10 h-10 rounded-lg bg-cinema-gold/15 flex items-center justify-center">
+                <i data-lucide="image" class="w-5 h-5 text-cinema-gold"></i>
               </div>
-              <p class="text-white text-sm font-medium">拖拽图片到此处，或点击选择文件</p>
-              <p class="text-cinema-gray text-xs">支持批量上传 · JPG / PNG / WEBP / GIF · 上传前本地预览审阅</p>
-            </div>
-            <input type="file" id="file-input" class="hidden" accept="image/*" multiple onchange="handleFileSelect(this)">
-          </div>
-
-          <!-- 上传进度区 -->
-          <div id="upload-progress-area" class="hidden glass-card rounded-xl p-5 space-y-3"></div>
-
-          <!-- 工具栏 -->
-          <div class="flex flex-wrap items-center gap-3">
-            <div class="relative flex-1 min-w-[180px]">
-              <i data-lucide="search" class="w-4 h-4 text-cinema-gray absolute left-3 top-1/2 -translate-y-1/2"></i>
-              <input type="text" class="admin-input pl-9" placeholder="搜索图片名称、描述..." value="${s.search}"
-                     oninput="imgState.search=this.value; navigateTo('images')">
-            </div>
-            <select class="admin-input w-auto" onchange="imgState.sortBy=this.value; navigateTo('images')">
-              <option value="uploadedAt" ${s.sortBy==='uploadedAt'?'selected':''}>按上传时间</option>
-              <option value="name" ${s.sortBy==='name'?'selected':''}>按名称</option>
-              <option value="date" ${s.sortBy==='date'?'selected':''}>按拍摄日期</option>
-              <option value="category" ${s.sortBy==='category'?'selected':''}>按分类</option>
-            </select>
-            <button onclick="imgState.sortOrder = imgState.sortOrder==='asc'?'desc':'asc'; navigateTo('images')" class="admin-btn admin-btn-ghost px-3" title="切换排序方向">
-              <i data-lucide="${s.sortOrder==='asc'?'arrow-up':'arrow-down'}" class="w-4 h-4"></i>
-            </button>
-            <select class="admin-input w-auto" onchange="imgState.category=this.value; navigateTo('images')">
-              <option value="all" ${s.category==='all'?'selected':''}>全部分类</option>
-              ${categories.map(c => `<option value="${c}" ${s.category===c?'selected':''}>${c}</option>`).join('')}
-            </select>
-            <div class="flex bg-white/5 rounded-lg p-0.5">
-              <button onclick="imgState.viewMode='grid'; navigateTo('images')" class="px-2.5 py-1.5 rounded-md ${s.viewMode==='grid'?'bg-cinema-gold/20 text-cinema-gold':'text-cinema-gray'}"><i data-lucide="grid" class="w-4 h-4"></i></button>
-              <button onclick="imgState.viewMode='list'; navigateTo('images')" class="px-2.5 py-1.5 rounded-md ${s.viewMode==='list'?'bg-cinema-gold/20 text-cinema-gold':'text-cinema-gray'}"><i data-lucide="list" class="w-4 h-4"></i></button>
-            </div>
-          </div>
-
-          <!-- 批量操作栏 -->
-          <div class="flex items-center justify-between flex-wrap gap-3">
-            <div class="flex items-center gap-3">
-              <label class="flex items-center gap-2 cursor-pointer text-sm text-cinema-gray">
-                <input type="checkbox" class="w-4 h-4 accent-cinema-gold" ${selCount===filtered.length&&filtered.length>0?'checked':''} onchange="toggleSelectAllImages(this.checked)">
-                全选
-              </label>
-              <span class="text-cinema-gray text-xs">${filtered.length} 张图片${selCount>0?' · 已选 '+selCount+' 张':''}</span>
-            </div>
-            ${selCount > 0 ? `
-              <div class="flex gap-2">
-                <button onclick="openBatchEditModal()" class="admin-btn admin-btn-ghost flex items-center gap-1.5 text-sm"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i> 批量编辑</button>
-                <button onclick="batchDeleteImages()" class="admin-btn admin-btn-ghost flex items-center gap-1.5 text-sm text-cinema-red"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> 批量删除</button>
+              <div>
+                <h3 class="text-lg font-display font-bold text-white">主页封面</h3>
+                <p class="text-cinema-gray text-xs">首页全屏背景图 · hero.jpg</p>
               </div>
-            ` : ''}
+            </div>
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <p class="text-cinema-gray text-xs mb-2">当前图片</p>
+                <div class="aspect-[16/9] rounded-xl overflow-hidden bg-cinema-darker border border-white/10">
+                  <img src="${heroImg.path}?t=${ts}" alt="主页封面" class="w-full h-full object-cover" onerror="this.style.opacity=0.2">
+                </div>
+                <p class="text-cinema-gray/60 text-xs mt-2">${heroImg.desc || ''}</p>
+              </div>
+              <div>
+                <p class="text-cinema-gray text-xs mb-2">上传新图片替换</p>
+                <div id="hero-drop-zone" class="border-2 border-dashed border-white/15 rounded-xl p-6 text-center transition-all duration-300 cursor-pointer hover:border-cinema-gold/50 hover:bg-white/[0.03] min-h-[160px] flex items-center justify-center"
+                     ondragover="handleHomeDragOver(event,'hero')" ondragleave="handleHomeDragLeave(event,'hero')" ondrop="handleHomeDrop(event,'hero')" onclick="document.getElementById('hero-file-input').click()">
+                  <div id="hero-preview-area" class="flex flex-col items-center gap-2">
+                    <div class="w-12 h-12 rounded-full bg-cinema-gold/10 flex items-center justify-center">
+                      <i data-lucide="upload-cloud" class="w-6 h-6 text-cinema-gold"></i>
+                    </div>
+                    <p class="text-white text-sm">拖拽图片或点击选择</p>
+                    <p class="text-cinema-gray text-xs">JPG / PNG / WEBP</p>
+                  </div>
+                  <input type="file" id="hero-file-input" class="hidden" accept="image/*" onchange="handleHomeFileSelect('hero', this)">
+                </div>
+                <button id="hero-save-btn" onclick="uploadHomeImage('hero')" class="admin-btn admin-btn-primary w-full mt-3 hidden">
+                  <i data-lucide="save" class="w-4 h-4"></i> 保存到云端
+                </button>
+              </div>
+            </div>
           </div>
 
-          <!-- 图片展示 -->
-          ${filtered.length === 0 ? `
-            <div class="text-center py-16 text-cinema-gray">
-              <i data-lucide="image-off" class="w-12 h-12 mx-auto mb-3 opacity-40"></i>
-              <p class="text-sm">暂无图片${s.search||s.category!=='all'?'，试试调整筛选条件':'，拖拽上传吧'}</p>
+          <!-- 演员写真 -->
+          <div class="glass-card p-6">
+            <div class="flex items-center gap-3 mb-5">
+              <div class="w-10 h-10 rounded-lg bg-cinema-gold/15 flex items-center justify-center">
+                <i data-lucide="user" class="w-5 h-5 text-cinema-gold"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-display font-bold text-white">演员写真</h3>
+                <p class="text-cinema-gray text-xs">关于演员板块肖像图 · about.jpg</p>
+              </div>
             </div>
-          ` : s.viewMode === 'grid' ? `
-            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              ${filtered.map(img => renderImageCard(img)).join('')}
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <p class="text-cinema-gray text-xs mb-2">当前图片</p>
+                <div class="aspect-[3/4] max-w-[250px] rounded-xl overflow-hidden bg-cinema-darker border border-white/10">
+                  <img src="${aboutImg.path}?t=${ts}" alt="演员写真" class="w-full h-full object-cover" onerror="this.style.opacity=0.2">
+                </div>
+                <p class="text-cinema-gray/60 text-xs mt-2">${aboutImg.desc || ''}</p>
+              </div>
+              <div>
+                <p class="text-cinema-gray text-xs mb-2">上传新图片替换</p>
+                <div id="about-drop-zone" class="border-2 border-dashed border-white/15 rounded-xl p-6 text-center transition-all duration-300 cursor-pointer hover:border-cinema-gold/50 hover:bg-white/[0.03] min-h-[160px] flex items-center justify-center"
+                     ondragover="handleHomeDragOver(event,'about')" ondragleave="handleHomeDragLeave(event,'about')" ondrop="handleHomeDrop(event,'about')" onclick="document.getElementById('about-file-input').click()">
+                  <div id="about-preview-area" class="flex flex-col items-center gap-2">
+                    <div class="w-12 h-12 rounded-full bg-cinema-gold/10 flex items-center justify-center">
+                      <i data-lucide="upload-cloud" class="w-6 h-6 text-cinema-gold"></i>
+                    </div>
+                    <p class="text-white text-sm">拖拽图片或点击选择</p>
+                    <p class="text-cinema-gray text-xs">JPG / PNG / WEBP</p>
+                  </div>
+                  <input type="file" id="about-file-input" class="hidden" accept="image/*" onchange="handleHomeFileSelect('about', this)">
+                </div>
+                <button id="about-save-btn" onclick="uploadHomeImage('about')" class="admin-btn admin-btn-primary w-full mt-3 hidden">
+                  <i data-lucide="save" class="w-4 h-4"></i> 保存到云端
+                </button>
+              </div>
             </div>
-          ` : `
-            <div class="glass-card overflow-hidden">
-              <table class="w-full text-sm">
-                <thead>
-                  <tr class="border-b border-white/10 text-cinema-gray text-xs">
-                    <th class="p-3 text-left w-10"></th>
-                    <th class="p-3 text-left">缩略图</th>
-                    <th class="p-3 text-left">名称</th>
-                    <th class="p-3 text-left">分类</th>
-                    <th class="p-3 text-left">拍摄日期</th>
-                    <th class="p-3 text-left">地点</th>
-                    <th class="p-3 text-left">作者</th>
-                    <th class="p-3 text-left">描述</th>
-                    <th class="p-3 text-center w-16">操作</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${filtered.map(img => renderImageRow(img)).join('')}
-                </tbody>
-              </table>
-            </div>
-          `}
+          </div>
         </div>
       `;
     }
@@ -2026,7 +2085,7 @@
               </div>
               <div class="flex justify-between py-2 border-b border-white/5">
                 <span class="text-cinema-gray">图片记录</span>
-                <span class="text-white">${DB.get('images', []).length} 条</span>
+                <span class="text-white">${DB.get('images', []).filter(i => i.name === 'hero.jpg' || i.name === 'about.jpg').length} 张</span>
               </div>
               <div class="flex justify-between py-2">
                 <span class="text-cinema-gray">站点设置</span>
