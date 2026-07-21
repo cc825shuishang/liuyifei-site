@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>后台管理系统 | 刘亦菲官方网站</title>
+  <meta name="description" content="刘亦菲官方网站后台管理系统">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'cinema-black': '#0a0a0f',
+            'cinema-dark': '#12121a',
+            'cinema-darker': '#1a1a25',
+            'cinema-gold': '#d4a853',
+            'cinema-gold-light': '#f5e6c8',
+            'cinema-gray': '#a1a1aa',
+            'cinema-light': '#fafafa',
+            'cinema-red': '#e53e3e',
+            'cinema-green': '#38a169',
+          },
+          fontFamily: {
+            'display': ['Playfair Display', 'serif'],
+            'body': ['Inter', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style type="text/tailwindcss">
+    @layer base {
+      body {
+        @apply bg-cinema-black text-cinema-light font-body antialiased;
+      }
+      h1, h2, h3, h4, h5, h6 {
+        @apply font-display;
+      }
+    }
+    @layer components {
+      .section-padding {
+        @apply px-4 sm:px-6 lg:px-8 xl:px-12;
+      }
+      .gold-gradient-text {
+        @apply bg-clip-text text-transparent bg-gradient-to-r from-cinema-gold to-cinema-gold-light;
+      }
+      .glass-card {
+        @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl;
+      }
+      .admin-input {
+        @apply w-full bg-cinema-darker border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-cinema-gray/50 focus:border-cinema-gold focus:outline-none transition-colors;
+      }
+      .admin-label {
+        @apply block text-sm text-cinema-gray mb-1.5 font-medium;
+      }
+      .admin-btn {
+        @apply px-5 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 cursor-pointer;
+      }
+      .admin-btn-primary {
+        @apply bg-cinema-gold text-cinema-black hover:bg-cinema-gold-light;
+      }
+      .admin-btn-danger {
+        @apply bg-cinema-red/20 text-cinema-red hover:bg-cinema-red/30 border border-cinema-red/30;
+      }
+      .admin-btn-ghost {
+        @apply bg-white/5 text-cinema-gray hover:bg-white/10 hover:text-white border border-white/10;
+      }
+      .sidebar-link {
+        @apply flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer;
+      }
+      .sidebar-link-active {
+        @apply bg-cinema-gold/15 text-cinema-gold;
+      }
+      .sidebar-link-inactive {
+        @apply text-cinema-gray hover:bg-white/5 hover:text-white;
+      }
+    }
+    .toast-enter {
+      animation: toastIn 0.3s ease-out forwards;
+    }
+    .toast-exit {
+      animation: toastOut 0.3s ease-out forwards;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-20px); }
+    }
+    .modal-overlay {
+      animation: fadeIn 0.2s ease-out forwards;
+    }
+    .modal-content {
+      animation: modalIn 0.3s ease-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+  </style>
+</head>
+<body class="overflow-x-hidden">
+
+  <!-- ==================== 登录页 ==================== -->
+  <div id="login-screen" class="min-h-screen flex items-center justify-center section-padding">
+    <div class="absolute inset-0 z-0">
+      <div class="absolute inset-0 bg-gradient-to-b from-cinema-black via-cinema-dark to-cinema-black"></div>
+      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-cinema-gold/10 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cinema-gold/5 rounded-full blur-3xl"></div>
+    </div>
+    <div class="relative z-10 w-full max-w-md">
+      <div class="glass-card p-8 md:p-10">
+        <div class="text-center mb-8">
+          <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-cinema-gold to-cinema-gold-light flex items-center justify-center mb-4">
+            <i data-lucide="lock" class="w-8 h-8 text-cinema-black"></i>
+          </div>
+          <h1 class="text-2xl font-display font-bold text-white">后台管理系统</h1>
+          <p class="text-cinema-gray text-sm mt-2">刘亦菲官方网站 · 管理面板</p>
+        </div>
+        <form id="login-form" class="space-y-5">
+          <div>
+            <label class="admin-label">用户名</label>
+            <input type="text" id="login-username" class="admin-input" placeholder="请输入用户名" autocomplete="username">
+          </div>
+          <div>
+            <label class="admin-label">密码</label>
+            <input type="password" id="login-password" class="admin-input" placeholder="请输入密码" autocomplete="current-password">
+          </div>
+          <div id="login-error" class="hidden text-cinema-red text-sm text-center py-2"></div>
+          <button type="submit" class="admin-btn admin-btn-primary w-full">登录</button>
+        </form>
+        <div class="mt-6 pt-6 border-t border-white/10 text-center">
+          <p class="text-cinema-gray/60 text-xs">默认账号：admin / 密码：admin123</p>
+          <p class="text-cinema-gray/40 text-xs mt-1">登录后请及时修改默认密码</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 管理面板 ==================== -->
+  <div id="admin-panel" class="hidden min-h-screen flex">
+
+    <!-- 侧边栏 -->
+    <aside class="fixed lg:static inset-y-0 left-0 z-40 w-64 bg-cinema-dark border-r border-white/10 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300" id="sidebar">
+      <div class="p-6 border-b border-white/10">
+        <a href="index.html" class="text-xl font-display font-bold text-cinema-gold tracking-wide">
+          CRYSTAL<span class="text-white">.</span>
+        </a>
+        <p class="text-cinema-gray text-xs mt-1">管理后台</p>
+      </div>
+
+      <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+        <a class="sidebar-link sidebar-link-active" data-page="dashboard">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+          <span>数据看板</span>
+        </a>
+        <a class="sidebar-link sidebar-link-inactive" data-page="works">
+          <i data-lucide="film" class="w-5 h-5"></i>
+          <span>作品管理</span>
+        </a>
+        <a class="sidebar-link sidebar-link-inactive" data-page="timeline">
+          <i data-lucide="clock" class="w-5 h-5"></i>
+          <span>演艺历程</span>
+        </a>
+        <a class="sidebar-link sidebar-link-inactive" data-page="settings">
+          <i data-lucide="settings" class="w-5 h-5"></i>
+          <span>站点设置</span>
+        </a>
+        <a class="sidebar-link sidebar-link-inactive" data-page="images">
+          <i data-lucide="image" class="w-5 h-5"></i>
+          <span>图片管理</span>
+        </a>
+        <a class="sidebar-link sidebar-link-inactive" data-page="account">
+          <i data-lucide="user-cog" class="w-5 h-5"></i>
+          <span>账户管理</span>
+        </a>
+        <a class="sidebar-link sidebar-link-inactive" data-page="data">
+          <i data-lucide="database" class="w-5 h-5"></i>
+          <span>数据管理</span>
+        </a>
+      </nav>
+
+      <div class="p-4 border-t border-white/10 space-y-2">
+        <a href="index.html" target="_blank" class="sidebar-link sidebar-link-inactive">
+          <i data-lucide="external-link" class="w-5 h-5"></i>
+          <span>查看前台</span>
+        </a>
+        <a class="sidebar-link sidebar-link-inactive" id="logout-btn">
+          <i data-lucide="log-out" class="w-5 h-5"></i>
+          <span>退出登录</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- 侧边栏遮罩(移动端) -->
+    <div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/50 z-30 lg:hidden"></div>
+
+    <!-- 主内容区 -->
+    <main class="flex-1 lg:ml-0 overflow-x-hidden">
+      <!-- 顶部栏 -->
+      <header class="sticky top-0 z-20 bg-cinema-black/90 backdrop-blur-md border-b border-white/10">
+        <div class="flex items-center justify-between px-6 py-4">
+          <div class="flex items-center gap-4">
+            <button class="lg:hidden text-white" id="menu-toggle">
+              <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+            <h2 id="page-title" class="text-lg font-display font-bold text-white">数据看板</h2>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-sm text-cinema-gray hidden sm:block" id="current-time"></span>
+            <div class="w-9 h-9 rounded-full bg-cinema-gold/20 flex items-center justify-center">
+              <i data-lucide="user" class="w-5 h-5 text-cinema-gold"></i>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- 页面内容 -->
+      <div class="p-6 max-w-7xl mx-auto" id="page-content">
+        <!-- 动态内容注入 -->
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================== 模态框 ==================== -->
+  <div id="modal-container" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="modal-overlay absolute inset-0 bg-black/70 backdrop-blur-sm" id="modal-overlay"></div>
+    <div class="modal-content relative w-full max-w-2xl max-h-[90vh] overflow-y-auto glass-card p-6 md:p-8" id="modal-content">
+      <!-- 动态内容 -->
+    </div>
+  </div>
+
+  <!-- ==================== Toast 通知 ==================== -->
+  <div id="toast-container" class="fixed top-6 right-6 z-[60] space-y-3"></div>
+
+  <script>
+    // ==================== 初始化 Lucide ====================
+    lucide.createIcons();
+
+    // ==================== 数据层 ====================
+    const DB = {
+      getKey(key) { return `crystal_admin_${key}`; },
+      get(key, defaultValue) {
+        try {
+          const val = localStorage.getItem(this.getKey(key));
+          return val ? JSON.parse(val) : defaultValue;
+        } catch { return defaultValue; }
+      },
+      set(key, value) {
+        localStorage.setItem(this.getKey(key), JSON.stringify(value));
+      },
+      remove(key) {
+        localStorage.removeItem(this.getKey(key));
+      }
+    };
+
+    // ==================== 默认数据 ====================
+    const DEFAULT_DATA = {
+      works: [
+        { id: 1, title: '仙剑奇侠传', year: 2005, type: 'tv', role: '赵灵儿', image: 'images/xianjian.jpg', desc: '古装仙侠剧经典之作，饰演天真善良、背负使命的南诏国公主赵灵儿，成为一代人的青春记忆。' },
+        { id: 2, title: '神雕侠侣', year: 2006, type: 'tv', role: '小龙女', image: 'images/shendiao.jpg', desc: '金庸武侠经典改编，饰演不食人间烟火的小龙女，成为无数观众心中的"神仙姐姐"。' },
+        { id: 3, title: '花木兰', year: 2020, type: 'movie', role: '花木兰', image: 'images/mulan.jpg', desc: '迪士尼真人版电影，刘亦菲成为首位主演迪士尼真人公主电影的华人女演员，展现东方女性的英勇与坚韧。' },
+        { id: 4, title: '梦华录', year: 2022, type: 'tv', role: '赵盼儿', image: 'images/menghualu.jpg', desc: '古装励志剧，演绎北宋时期三位女子在京城创业奋斗的故事，尽显古典东方美与独立女性力量。' },
+        { id: 5, title: '去有风的地方', year: 2023, type: 'tv', role: '许红豆', image: 'images/quyoufeng.jpg', desc: '田园治愈剧，讲述都市白领在云南大理寻找内心平静与生活意义的旅程。' },
+        { id: 6, title: '玫瑰的故事', year: 2024, type: 'tv', role: '黄亦玫', image: 'images/meigui.jpg', desc: '都市情感剧，讲述一位女性在爱情、事业与自我成长中的多重蜕变，引发广泛共鸣。' },
+      ],
+      timeline: [
+        { id: 1, year: 2024, title: '《玫瑰的故事》热播', desc: '主演都市剧《玫瑰的故事》饰演黄亦玫，以层次丰富的表演再度引发热议，并获电视剧导演大会年度女主角奖。' },
+        { id: 2, year: 2022, title: '小荧幕回归之作', desc: '主演《梦华录》饰演赵盼儿，凭该角色获第十三届澳门国际电视节金莲花最佳女主角奖。' },
+        { id: 3, year: 2020, title: '走向国际舞台', desc: '主演迪士尼真人电影《花木兰》，成为首位华人迪士尼真人公主，并提名好莱坞评论家选择超级奖动作电影最佳女演员。' },
+        { id: 4, year: 2014, title: '首获影后', desc: '凭借古装片《铜雀台》中灵雎一角，获得第5届澳门国际电影节最佳女主角奖。' },
+        { id: 5, year: 2006, title: '首位金鹰女神', desc: '主演《神雕侠侣》小龙女一角受到广泛关注；同年成为金鹰节历史上首位金鹰女神。' },
+        { id: 6, year: 2002, title: '正式出道', desc: '15岁考入北京电影学院，同年出演《金粉世家》白秀珠一角，开启演艺生涯。' },
+      ],
+      settings: {
+        siteTitle: '刘亦菲官方网站',
+        siteSubtitle: '以东方之美，演绎万千角色',
+        siteDesc: '从"神仙姐姐"到"当代花木兰"，用二十年光影沉淀，诠释每一个独一无二的灵魂。',
+        debutYear: '2002',
+        worksCount: '28',
+        awardsCount: '12+',
+        weiboFollowers: '7400W+',
+        officialWeibo: 'https://weibo.com/3261134763',
+        fanClubLink: 'https://www.weibo.com/lyfba',
+        contactEmail: 'fanclub@example.com',
+      },
+      account: {
+        username: 'admin',
+        password: 'admin123',
+      },
+      images: [
+        { name: 'hero.jpg', path: 'images/hero.jpg', desc: '主海报/首页背景' },
+        { name: 'about.jpg', path: 'images/about.jpg', desc: '关于演员写真' },
+        { name: 'xianjian.jpg', path: 'images/xianjian.jpg', desc: '仙剑奇侠传剧照' },
+        { name: 'shendiao.jpg', path: 'images/shendiao.jpg', desc: '神雕侠侣剧照' },
+        { name: 'mulan.jpg', path: 'images/mulan.jpg', desc: '花木兰剧照' },
+        { name: 'menghualu.jpg', path: 'images/menghualu.jpg', desc: '梦华录剧照' },
+        { name: 'quyoufeng.jpg', path: 'images/quyoufeng.jpg', desc: '去有风的地方剧照' },
+        { name: 'meigui.jpg', path: 'images/meigui.jpg', desc: '玫瑰的故事剧照' },
+      ]
+    };
+
+    // ==================== 初始化数据 ====================
+    function initData() {
+      if (!DB.get('works')) DB.set('works', DEFAULT_DATA.works);
+      if (!DB.get('timeline')) DB.set('timeline', DEFAULT_DATA.timeline);
+      if (!DB.get('settings')) DB.set('settings', DEFAULT_DATA.settings);
+      if (!DB.get('account')) DB.set('account', DEFAULT_DATA.account);
+      if (!DB.get('images')) DB.set('images', DEFAULT_DATA.images);
+    }
+    initData();
+
+    // ==================== 认证 ====================
+    function isLoggedIn() {
+      return sessionStorage.getItem('crystal_admin_session') === 'true';
+    }
+    function login(username, password) {
+      const account = DB.get('account', DEFAULT_DATA.account);
+      if (username === account.username && password === account.password) {
+        sessionStorage.setItem('crystal_admin_session', 'true');
+        return true;
+      }
+      return false;
+    }
+    function logout() {
+      sessionStorage.removeItem('crystal_admin_session');
+      location.reload();
+    }
+
+    // ==================== Toast 通知 ====================
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colors = {
+        success: 'bg-cinema-green/20 border-cinema-green/40 text-cinema-green',
+        error: 'bg-cinema-red/20 border-cinema-red/40 text-cinema-red',
+        info: 'bg-cinema-gold/20 border-cinema-gold/40 text-cinema-gold',
+      };
+      const icons = { success: 'check-circle', error: 'x-circle', info: 'info' };
+      toast.className = `toast-enter flex items-center gap-3 px-5 py-3 rounded-lg border ${colors[type]} backdrop-blur-md text-sm font-medium min-w-[260px]`;
+      toast.innerHTML = `<i data-lucide="${icons[type]}" class="w-5 h-5"></i><span>${message}</span>`;
+      container.appendChild(toast);
+      lucide.createIcons();
+      setTimeout(() => {
+        toast.classList.remove('toast-enter');
+        toast.classList.add('toast-exit');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // ==================== 模态框 ====================
+    function openModal(html) {
+      const container = document.getElementById('modal-container');
+      const content = document.getElementById('modal-content');
+      content.innerHTML = html;
+      container.classList.remove('hidden');
+      lucide.createIcons();
+    }
+    function closeModal() {
+      document.getElementById('modal-container').classList.add('hidden');
+    }
+    document.getElementById('modal-overlay').addEventListener('click', closeModal);
+
+    // ==================== 页面渲染 ====================
+    const PAGES = {
+      dashboard: { title: '数据看板', render: renderDashboard },
+      works: { title: '作品管理', render: renderWorks },
+      timeline: { title: '演艺历程', render: renderTimeline },
+      settings: { title: '站点设置', render: renderSettings },
+      images: { title: '图片管理', render: renderImages },
+      account: { title: '账户管理', render: renderAccount },
+      data: { title: '数据管理', render: renderData },
+    };
+
+    let currentPage = 'dashboard';
+
+    function navigateTo(page) {
+      currentPage = page;
+      // 更新侧边栏
+      document.querySelectorAll('.sidebar-link[data-page]').forEach(link => {
+        if (link.dataset.page === page) {
+          link.classList.remove('sidebar-link-inactive');
+          link.classList.add('sidebar-link-active');
+        } else {
+          link.classList.remove('sidebar-link-active');
+          link.classList.add('sidebar-link-inactive');
+        }
+      });
+      // 更新标题
+      document.getElementById('page-title').textContent = PAGES[page].title;
+      // 渲染内容
+      document.getElementById('page-content').innerHTML = PAGES[page].render();
+      lucide.createIcons();
+      // 关闭移动端侧边栏
+      closeSidebar();
+    }
+
+    document.querySelectorAll('.sidebar-link[data-page]').forEach(link => {
+      link.addEventListener('click', () => navigateTo(link.dataset.page));
+    });
+
+    // ==================== 数据看板 ====================
+    function renderDashboard() {
+      const works = DB.get('works', []);
+      const timeline = DB.get('timeline', []);
+      const settings = DB.get('settings', {});
+      const images = DB.get('images', []);
+      const movies = works.filter(w => w.type === 'movie').length;
+      const tvShows = works.filter(w => w.type === 'tv').length;
+
+      return `
+        <div class="space-y-6">
+          <!-- 统计卡片 -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="glass-card p-6">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-cinema-gold/20 flex items-center justify-center">
+                  <i data-lucide="film" class="w-6 h-6 text-cinema-gold"></i>
+                </div>
+                <div>
+                  <p class="text-3xl font-display font-bold text-white">${works.length}</p>
+                  <p class="text-sm text-cinema-gray">影视作品</p>
+                </div>
+              </div>
+            </div>
+            <div class="glass-card p-6">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-cinema-gold/20 flex items-center justify-center">
+                  <i data-lucide="clock" class="w-6 h-6 text-cinema-gold"></i>
+                </div>
+                <div>
+                  <p class="text-3xl font-display font-bold text-white">${timeline.length}</p>
+                  <p class="text-sm text-cinema-gray">历程节点</p>
+                </div>
+              </div>
+            </div>
+            <div class="glass-card p-6">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-cinema-gold/20 flex items-center justify-center">
+                  <i data-lucide="image" class="w-6 h-6 text-cinema-gold"></i>
+                </div>
+                <div>
+                  <p class="text-3xl font-display font-bold text-white">${images.length}</p>
+                  <p class="text-sm text-cinema-gray">图片资源</p>
+                </div>
+              </div>
+            </div>
+            <div class="glass-card p-6">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-cinema-gold/20 flex items-center justify-center">
+                  <i data-lucide="users" class="w-6 h-6 text-cinema-gold"></i>
+                </div>
+                <div>
+                  <p class="text-3xl font-display font-bold text-white">${settings.weiboFollowers || '-'}</p>
+                  <p class="text-sm text-cinema-gray">微博粉丝</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 作品类型分布 -->
+          <div class="grid lg:grid-cols-2 gap-6">
+            <div class="glass-card p-6">
+              <h3 class="text-lg font-display font-bold text-white mb-4">作品类型分布</h3>
+              <div class="space-y-4">
+                <div>
+                  <div class="flex justify-between text-sm mb-2">
+                    <span class="text-cinema-gray">电视剧</span>
+                    <span class="text-white">${tvShows} 部</span>
+                  </div>
+                  <div class="h-3 bg-white/5 rounded-full overflow-hidden">
+                    <div class="h-full bg-cinema-gold rounded-full transition-all duration-500" style="width: ${works.length ? (tvShows / works.length * 100) : 0}%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm mb-2">
+                    <span class="text-cinema-gray">电影</span>
+                    <span class="text-white">${movies} 部</span>
+                  </div>
+                  <div class="h-3 bg-white/5 rounded-full overflow-hidden">
+                    <div class="h-full bg-cinema-gold-light rounded-full transition-all duration-500" style="width: ${works.length ? (movies / works.length * 100) : 0}%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-card p-6">
+              <h3 class="text-lg font-display font-bold text-white mb-4">最新作品</h3>
+              <div class="space-y-3">
+                ${works.slice(0, 4).map(w => `
+                  <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                    <img src="${w.image}" alt="${w.title}" class="w-12 h-12 rounded-lg object-cover" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect fill=%22%23333%22 width=%2248%22 height=%2248%22/></svg>'">
+                    <div class="flex-1 min-w-0">
+                      <p class="text-white text-sm font-medium truncate">${w.title}</p>
+                      <p class="text-cinema-gray text-xs">${w.year} · ${w.type === 'movie' ? '电影' : '电视剧'} · ${w.role}</p>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- 快捷操作 -->
+          <div class="glass-card p-6">
+            <h3 class="text-lg font-display font-bold text-white mb-4">快捷操作</h3>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <button onclick="navigateTo('works')" class="admin-btn admin-btn-ghost flex items-center justify-center gap-2">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> 添加作品
+              </button>
+              <button onclick="navigateTo('timeline')" class="admin-btn admin-btn-ghost flex items-center justify-center gap-2">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> 添加历程
+              </button>
+              <button onclick="navigateTo('settings')" class="admin-btn admin-btn-ghost flex items-center justify-center gap-2">
+                <i data-lucide="edit" class="w-4 h-4"></i> 修改设置
+              </button>
+              <button onclick="navigateTo('data')" class="admin-btn admin-btn-ghost flex items-center justify-center gap-2">
+                <i data-lucide="download" class="w-4 h-4"></i> 导出数据
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ==================== 作品管理 ====================
+    function renderWorks() {
+      const works = DB.get('works', []);
+      return `
+        <div class="space-y-6">
+          <div class="flex items-center justify-between">
+            <p class="text-cinema-gray text-sm">共 ${works.length} 部作品</p>
+            <button onclick="openWorkModal()" class="admin-btn admin-btn-primary flex items-center gap-2">
+              <i data-lucide="plus" class="w-4 h-4"></i> 添加作品
+            </button>
+          </div>
+          <div class="glass-card overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead>
+                  <tr class="border-b border-white/10 text-left">
+                    <th class="px-4 py-3 text-sm text-cinema-gray font-medium">封面</th>
+                    <th class="px-4 py-3 text-sm text-cinema-gray font-medium">作品名称</th>
+                    <th class="px-4 py-3 text-sm text-cinema-gray font-medium">年份</th>
+                    <th class="px-4 py-3 text-sm text-cinema-gray font-medium">类型</th>
+                    <th class="px-4 py-3 text-sm text-cinema-gray font-medium">角色</th>
+                    <th class="px-4 py-3 text-sm text-cinema-gray font-medium text-right">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${works.map(w => `
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                      <td class="px-4 py-3">
+                        <img src="${w.image}" alt="${w.title}" class="w-14 h-10 rounded object-cover" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 56 40%22><rect fill=%22%23333%22 width=%2256%22 height=%2240%22/></svg>'">
+                      </td>
+                      <td class="px-4 py-3 text-white text-sm font-medium">${w.title}</td>
+                      <td class="px-4 py-3 text-cinema-gray text-sm">${w.year}</td>
+                      <td class="px-4 py-3">
+                        <span class="text-xs px-2 py-1 rounded ${w.type === 'movie' ? 'bg-cinema-gold-light/15 text-cinema-gold-light' : 'bg-cinema-gold/15 text-cinema-gold'}">${w.type === 'movie' ? '电影' : '电视剧'}</span>
+                      </td>
+                      <td class="px-4 py-3 text-cinema-gray text-sm">${w.role}</td>
+                      <td class="px-4 py-3">
+                        <div class="flex items-center justify-end gap-2">
+                          <button onclick="openWorkModal(${w.id})" class="p-2 rounded-lg bg-white/5 text-cinema-gray hover:text-cinema-gold hover:bg-white/10 transition-colors">
+                            <i data-lucide="edit" class="w-4 h-4"></i>
+                          </button>
+                          <button onclick="deleteWork(${w.id})" class="p-2 rounded-lg bg-white/5 text-cinema-gray hover:text-cinema-red hover:bg-cinema-red/10 transition-colors">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function openWorkModal(id) {
+      const works = DB.get('works', []);
+      const work = id ? works.find(w => w.id === id) : { id: null, title: '', year: '', type: 'tv', role: '', image: '', desc: '' };
+      const images = DB.get('images', []);
+      openModal(`
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-display font-bold text-white">${id ? '编辑作品' : '添加作品'}</h3>
+          <button onclick="closeModal()" class="text-cinema-gray hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <form id="work-form" class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="admin-label">作品名称</label>
+              <input type="text" id="work-title" class="admin-input" value="${work.title}" required>
+            </div>
+            <div>
+              <label class="admin-label">年份</label>
+              <input type="number" id="work-year" class="admin-input" value="${work.year}" required>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="admin-label">类型</label>
+              <select id="work-type" class="admin-input">
+                <option value="tv" ${work.type === 'tv' ? 'selected' : ''}>电视剧</option>
+                <option value="movie" ${work.type === 'movie' ? 'selected' : ''}>电影</option>
+              </select>
+            </div>
+            <div>
+              <label class="admin-label">饰演角色</label>
+              <input type="text" id="work-role" class="admin-input" value="${work.role}" required>
+            </div>
+          </div>
+          <div>
+            <label class="admin-label">封面图片路径</label>
+            <select id="work-image" class="admin-input">
+              ${images.map(img => `<option value="${img.path}" ${work.image === img.path ? 'selected' : ''}>${img.name} - ${img.desc}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label class="admin-label">作品简介</label>
+            <textarea id="work-desc" class="admin-input" rows="3" required>${work.desc}</textarea>
+          </div>
+          <div class="flex justify-end gap-3 pt-4">
+            <button type="button" onclick="closeModal()" class="admin-btn admin-btn-ghost">取消</button>
+            <button type="submit" class="admin-btn admin-btn-primary">${id ? '保存修改' : '添加'}</button>
+          </div>
+        </form>
+      `);
+      document.getElementById('work-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = {
+          id: id || Date.now(),
+          title: document.getElementById('work-title').value,
+          year: parseInt(document.getElementById('work-year').value),
+          type: document.getElementById('work-type').value,
+          role: document.getElementById('work-role').value,
+          image: document.getElementById('work-image').value,
+          desc: document.getElementById('work-desc').value,
+        };
+        const works = DB.get('works', []);
+        if (id) {
+          const idx = works.findIndex(w => w.id === id);
+          works[idx] = data;
+        } else {
+          works.push(data);
+        }
+        DB.set('works', works);
+        closeModal();
+        navigateTo('works');
+        showToast(id ? '作品已更新' : '作品已添加');
+      });
+    }
+
+    function deleteWork(id) {
+      openModal(`
+        <div class="text-center">
+          <div class="w-16 h-16 mx-auto rounded-full bg-cinema-red/20 flex items-center justify-center mb-4">
+            <i data-lucide="alert-triangle" class="w-8 h-8 text-cinema-red"></i>
+          </div>
+          <h3 class="text-xl font-display font-bold text-white mb-2">确认删除</h3>
+          <p class="text-cinema-gray text-sm mb-6">此操作不可撤销，确定要删除这部作品吗？</p>
+          <div class="flex justify-center gap-3">
+            <button onclick="closeModal()" class="admin-btn admin-btn-ghost">取消</button>
+            <button onclick="confirmDeleteWork(${id})" class="admin-btn admin-btn-danger">确认删除</button>
+          </div>
+        </div>
+      `);
+    }
+    function confirmDeleteWork(id) {
+      let works = DB.get('works', []);
+      works = works.filter(w => w.id !== id);
+      DB.set('works', works);
+      closeModal();
+      navigateTo('works');
+      showToast('作品已删除', 'info');
+    }
+
+    // ==================== 演艺历程 ====================
+    function renderTimeline() {
+      const timeline = DB.get('timeline', []).sort((a, b) => b.year - a.year);
+      return `
+        <div class="space-y-6">
+          <div class="flex items-center justify-between">
+            <p class="text-cinema-gray text-sm">共 ${timeline.length} 个历程节点</p>
+            <button onclick="openTimelineModal()" class="admin-btn admin-btn-primary flex items-center gap-2">
+              <i data-lucide="plus" class="w-4 h-4"></i> 添加历程
+            </button>
+          </div>
+          <div class="space-y-3">
+            ${timeline.map(t => `
+              <div class="glass-card p-5 flex items-start gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <p class="text-2xl font-display font-bold text-cinema-gold">${t.year}</p>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-white font-bold mb-1">${t.title}</h3>
+                  <p class="text-cinema-gray text-sm">${t.desc}</p>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  <button onclick="openTimelineModal(${t.id})" class="p-2 rounded-lg bg-white/5 text-cinema-gray hover:text-cinema-gold hover:bg-white/10 transition-colors">
+                    <i data-lucide="edit" class="w-4 h-4"></i>
+                  </button>
+                  <button onclick="deleteTimeline(${t.id})" class="p-2 rounded-lg bg-white/5 text-cinema-gray hover:text-cinema-red hover:bg-cinema-red/10 transition-colors">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function openTimelineModal(id) {
+      const timeline = DB.get('timeline', []);
+      const item = id ? timeline.find(t => t.id === id) : { id: null, year: '', title: '', desc: '' };
+      openModal(`
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-display font-bold text-white">${id ? '编辑历程' : '添加历程'}</h3>
+          <button onclick="closeModal()" class="text-cinema-gray hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <form id="timeline-form" class="space-y-4">
+          <div>
+            <label class="admin-label">年份</label>
+            <input type="number" id="tl-year" class="admin-input" value="${item.year}" required>
+          </div>
+          <div>
+            <label class="admin-label">标题</label>
+            <input type="text" id="tl-title" class="admin-input" value="${item.title}" required>
+          </div>
+          <div>
+            <label class="admin-label">描述</label>
+            <textarea id="tl-desc" class="admin-input" rows="4" required>${item.desc}</textarea>
+          </div>
+          <div class="flex justify-end gap-3 pt-4">
+            <button type="button" onclick="closeModal()" class="admin-btn admin-btn-ghost">取消</button>
+            <button type="submit" class="admin-btn admin-btn-primary">${id ? '保存修改' : '添加'}</button>
+          </div>
+        </form>
+      `);
+      document.getElementById('timeline-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = {
+          id: id || Date.now(),
+          year: parseInt(document.getElementById('tl-year').value),
+          title: document.getElementById('tl-title').value,
+          desc: document.getElementById('tl-desc').value,
+        };
+        const timeline = DB.get('timeline', []);
+        if (id) {
+          const idx = timeline.findIndex(t => t.id === id);
+          timeline[idx] = data;
+        } else {
+          timeline.push(data);
+        }
+        DB.set('timeline', timeline);
+        closeModal();
+        navigateTo('timeline');
+        showToast(id ? '历程已更新' : '历程已添加');
+      });
+    }
+
+    function deleteTimeline(id) {
+      openModal(`
+        <div class="text-center">
+          <div class="w-16 h-16 mx-auto rounded-full bg-cinema-red/20 flex items-center justify-center mb-4">
+            <i data-lucide="alert-triangle" class="w-8 h-8 text-cinema-red"></i>
+          </div>
+          <h3 class="text-xl font-display font-bold text-white mb-2">确认删除</h3>
+          <p class="text-cinema-gray text-sm mb-6">此操作不可撤销，确定要删除这个历程节点吗？</p>
+          <div class="flex justify-center gap-3">
+            <button onclick="closeModal()" class="admin-btn admin-btn-ghost">取消</button>
+            <button onclick="confirmDeleteTimeline(${id})" class="admin-btn admin-btn-danger">确认删除</button>
+          </div>
+        </div>
+      `);
+    }
+    function confirmDeleteTimeline(id) {
+      let timeline = DB.get('timeline', []);
+      timeline = timeline.filter(t => t.id !== id);
+      DB.set('timeline', timeline);
+      closeModal();
+      navigateTo('timeline');
+      showToast('历程已删除', 'info');
+    }
+
+    // ==================== 站点设置 ====================
+    function renderSettings() {
+      const s = DB.get('settings', {});
+      return `
+        <form id="settings-form" class="space-y-6 max-w-3xl">
+          <div class="glass-card p-6 space-y-4">
+            <h3 class="text-lg font-display font-bold text-white mb-2">基本信息</h3>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label class="admin-label">网站标题</label>
+                <input type="text" id="set-title" class="admin-input" value="${s.siteTitle || ''}">
+              </div>
+              <div>
+                <label class="admin-label">副标题</label>
+                <input type="text" id="set-subtitle" class="admin-input" value="${s.siteSubtitle || ''}">
+              </div>
+            </div>
+            <div>
+              <label class="admin-label">网站描述</label>
+              <textarea id="set-desc" class="admin-input" rows="2">${s.siteDesc || ''}</textarea>
+            </div>
+          </div>
+
+          <div class="glass-card p-6 space-y-4">
+            <h3 class="text-lg font-display font-bold text-white mb-2">统计数据</h3>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <label class="admin-label">出道年份</label>
+                <input type="text" id="set-debut" class="admin-input" value="${s.debutYear || ''}">
+              </div>
+              <div>
+                <label class="admin-label">影视作品数量</label>
+                <input type="text" id="set-works" class="admin-input" value="${s.worksCount || ''}">
+              </div>
+              <div>
+                <label class="admin-label">获奖荣誉</label>
+                <input type="text" id="set-awards" class="admin-input" value="${s.awardsCount || ''}">
+              </div>
+              <div>
+                <label class="admin-label">微博粉丝</label>
+                <input type="text" id="set-followers" class="admin-input" value="${s.weiboFollowers || ''}">
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card p-6 space-y-4">
+            <h3 class="text-lg font-display font-bold text-white mb-2">链接设置</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="admin-label">官方微博链接</label>
+                <input type="url" id="set-weibo" class="admin-input" value="${s.officialWeibo || ''}">
+              </div>
+              <div>
+                <label class="admin-label">粉丝团体链接（亦家人）</label>
+                <input type="url" id="set-fanclub" class="admin-input" value="${s.fanClubLink || ''}">
+              </div>
+              <div>
+                <label class="admin-label">联系邮箱</label>
+                <input type="email" id="set-email" class="admin-input" value="${s.contactEmail || ''}">
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button type="submit" class="admin-btn admin-btn-primary flex items-center gap-2">
+              <i data-lucide="save" class="w-4 h-4"></i> 保存设置
+            </button>
+          </div>
+        </form>
+      `;
+    }
+
+    // 设置表单提交（事件委托）
+    document.addEventListener('submit', (e) => {
+      if (e.target.id === 'settings-form') {
+        e.preventDefault();
+        const settings = {
+          siteTitle: document.getElementById('set-title').value,
+          siteSubtitle: document.getElementById('set-subtitle').value,
+          siteDesc: document.getElementById('set-desc').value,
+          debutYear: document.getElementById('set-debut').value,
+          worksCount: document.getElementById('set-works').value,
+          awardsCount: document.getElementById('set-awards').value,
+          weiboFollowers: document.getElementById('set-followers').value,
+          officialWeibo: document.getElementById('set-weibo').value,
+          fanClubLink: document.getElementById('set-fanclub').value,
+          contactEmail: document.getElementById('set-email').value,
+        };
+        DB.set('settings', settings);
+        showToast('设置已保存');
+      }
+    });
+
+    // ==================== 图片管理 ====================
+    function renderImages() {
+      const images = DB.get('images', []);
+      return `
+        <div class="space-y-6">
+          <div class="flex items-center justify-between">
+            <p class="text-cinema-gray text-sm">共 ${images.length} 张图片</p>
+            <button onclick="openImageModal()" class="admin-btn admin-btn-primary flex items-center gap-2">
+              <i data-lucide="plus" class="w-4 h-4"></i> 添加图片记录
+            </button>
+          </div>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            ${images.map(img => `
+              <div class="glass-card overflow-hidden group">
+                <div class="aspect-video overflow-hidden bg-cinema-darker">
+                  <img src="${img.path}" alt="${img.name}" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 200%22><rect fill=%22%23333%22 width=%22300%22 height=%22200%22/><text x=%22150%22 y=%22100%22 fill=%22%23666%22 font-size=%2214%22 text-anchor=%22middle%22>图片未找到</text></svg>'">
+                </div>
+                <div class="p-4">
+                  <div class="flex items-center justify-between mb-2">
+                    <p class="text-white text-sm font-medium">${img.name}</p>
+                    <div class="flex gap-1">
+                      <button onclick="openImageModal('${img.name}')" class="p-1.5 rounded bg-white/5 text-cinema-gray hover:text-cinema-gold transition-colors">
+                        <i data-lucide="edit" class="w-3.5 h-3.5"></i>
+                      </button>
+                      <button onclick="deleteImage('${img.name}')" class="p-1.5 rounded bg-white/5 text-cinema-gray hover:text-cinema-red transition-colors">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <p class="text-cinema-gray text-xs">${img.desc}</p>
+                  <p class="text-cinema-gray/50 text-xs mt-1 font-mono">${img.path}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function openImageModal(name) {
+      const images = DB.get('images', []);
+      const img = name ? images.find(i => i.name === name) : { name: '', path: '', desc: '' };
+      openModal(`
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-display font-bold text-white">${name ? '编辑图片记录' : '添加图片记录'}</h3>
+          <button onclick="closeModal()" class="text-cinema-gray hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <form id="image-form" class="space-y-4">
+          <div>
+            <label class="admin-label">图片名称</label>
+            <input type="text" id="img-name" class="admin-input" value="${img.name}" placeholder="例如：newphoto.jpg" required>
+          </div>
+          <div>
+            <label class="admin-label">图片路径</label>
+            <input type="text" id="img-path" class="admin-input" value="${img.path}" placeholder="例如：images/newphoto.jpg" required>
+          </div>
+          <div>
+            <label class="admin-label">描述</label>
+            <input type="text" id="img-desc" class="admin-input" value="${img.desc}" placeholder="图片用途说明">
+          </div>
+          <div class="flex justify-end gap-3 pt-4">
+            <button type="button" onclick="closeModal()" class="admin-btn admin-btn-ghost">取消</button>
+            <button type="submit" class="admin-btn admin-btn-primary">${name ? '保存修改' : '添加'}</button>
+          </div>
+        </form>
+      `);
+      document.getElementById('image-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = {
+          name: document.getElementById('img-name').value,
+          path: document.getElementById('img-path').value,
+          desc: document.getElementById('img-desc').value,
+        };
+        const images = DB.get('images', []);
+        if (name) {
+          const idx = images.findIndex(i => i.name === name);
+          images[idx] = data;
+        } else {
+          images.push(data);
+        }
+        DB.set('images', images);
+        closeModal();
+        navigateTo('images');
+        showToast(name ? '图片记录已更新' : '图片记录已添加');
+      });
+    }
+
+    function deleteImage(name) {
+      openModal(`
+        <div class="text-center">
+          <div class="w-16 h-16 mx-auto rounded-full bg-cinema-red/20 flex items-center justify-center mb-4">
+            <i data-lucide="alert-triangle" class="w-8 h-8 text-cinema-red"></i>
+          </div>
+          <h3 class="text-xl font-display font-bold text-white mb-2">确认删除</h3>
+          <p class="text-cinema-gray text-sm mb-6">删除图片记录（不会删除实际文件），确定吗？</p>
+          <div class="flex justify-center gap-3">
+            <button onclick="closeModal()" class="admin-btn admin-btn-ghost">取消</button>
+            <button onclick="confirmDeleteImage('${name}')" class="admin-btn admin-btn-danger">确认删除</button>
+          </div>
+        </div>
+      `);
+    }
+    function confirmDeleteImage(name) {
+      let images = DB.get('images', []);
+      images = images.filter(i => i.name !== name);
+      DB.set('images', images);
+      closeModal();
+      navigateTo('images');
+      showToast('图片记录已删除', 'info');
+    }
+
+    // ==================== 账户管理 ====================
+    function renderAccount() {
+      const account = DB.get('account', {});
+      return `
+        <form id="account-form" class="space-y-6 max-w-lg">
+          <div class="glass-card p-6 space-y-4">
+            <h3 class="text-lg font-display font-bold text-white mb-2">修改账户信息</h3>
+            <div>
+              <label class="admin-label">用户名</label>
+              <input type="text" id="acc-username" class="admin-input" value="${account.username}" required>
+            </div>
+            <div>
+              <label class="admin-label">当前密码</label>
+              <input type="password" id="acc-current-pwd" class="admin-input" placeholder="请输入当前密码">
+            </div>
+            <div>
+              <label class="admin-label">新密码</label>
+              <input type="password" id="acc-new-pwd" class="admin-input" placeholder="留空则不修改密码">
+            </div>
+            <div>
+              <label class="admin-label">确认新密码</label>
+              <input type="password" id="acc-confirm-pwd" class="admin-input" placeholder="再次输入新密码">
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="admin-btn admin-btn-primary flex items-center gap-2">
+              <i data-lucide="save" class="w-4 h-4"></i> 保存修改
+            </button>
+          </div>
+        </form>
+      `;
+    }
+
+    document.addEventListener('submit', (e) => {
+      if (e.target.id === 'account-form') {
+        e.preventDefault();
+        const account = DB.get('account', {});
+        const username = document.getElementById('acc-username').value;
+        const currentPwd = document.getElementById('acc-current-pwd').value;
+        const newPwd = document.getElementById('acc-new-pwd').value;
+        const confirmPwd = document.getElementById('acc-confirm-pwd').value;
+
+        if (newPwd || confirmPwd) {
+          if (currentPwd !== account.password) {
+            showToast('当前密码不正确', 'error');
+            return;
+          }
+          if (newPwd !== confirmPwd) {
+            showToast('两次输入的新密码不一致', 'error');
+            return;
+          }
+          if (newPwd.length < 6) {
+            showToast('新密码至少 6 位', 'error');
+            return;
+          }
+          account.password = newPwd;
+        }
+        account.username = username;
+        DB.set('account', account);
+        showToast('账户信息已更新');
+      }
+    });
+
+    // ==================== 数据管理 ====================
+    function renderData() {
+      return `
+        <div class="space-y-6 max-w-3xl">
+          <div class="glass-card p-6">
+            <h3 class="text-lg font-display font-bold text-white mb-2">导出数据</h3>
+            <p class="text-cinema-gray text-sm mb-4">将当前所有管理数据导出为 JSON 文件，可用于备份或迁移。</p>
+            <button onclick="exportData()" class="admin-btn admin-btn-primary flex items-center gap-2">
+              <i data-lucide="download" class="w-4 h-4"></i> 导出全部数据
+            </button>
+          </div>
+
+          <div class="glass-card p-6">
+            <h3 class="text-lg font-display font-bold text-white mb-2">导入数据</h3>
+            <p class="text-cinema-gray text-sm mb-4">从 JSON 文件导入数据，将覆盖当前所有管理数据。</p>
+            <input type="file" id="import-file" accept=".json" class="hidden">
+            <button onclick="document.getElementById('import-file').click()" class="admin-btn admin-btn-ghost flex items-center gap-2">
+              <i data-lucide="upload" class="w-4 h-4"></i> 选择 JSON 文件
+            </button>
+          </div>
+
+          <div class="glass-card p-6 border-cinema-red/20">
+            <h3 class="text-lg font-display font-bold text-cinema-red mb-2">重置数据</h3>
+            <p class="text-cinema-gray text-sm mb-4">将所有数据恢复到初始默认状态，此操作不可撤销。</p>
+            <button onclick="resetData()" class="admin-btn admin-btn-danger flex items-center gap-2">
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i> 重置为默认数据
+            </button>
+          </div>
+
+          <div class="glass-card p-6">
+            <h3 class="text-lg font-display font-bold text-white mb-4">当前数据预览</h3>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between py-2 border-b border-white/5">
+                <span class="text-cinema-gray">作品数据</span>
+                <span class="text-white">${DB.get('works', []).length} 条</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-white/5">
+                <span class="text-cinema-gray">历程数据</span>
+                <span class="text-white">${DB.get('timeline', []).length} 条</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-white/5">
+                <span class="text-cinema-gray">图片记录</span>
+                <span class="text-white">${DB.get('images', []).length} 条</span>
+              </div>
+              <div class="flex justify-between py-2">
+                <span class="text-cinema-gray">站点设置</span>
+                <span class="text-cinema-green">已配置</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function exportData() {
+      const data = {
+        exportTime: new Date().toISOString(),
+        works: DB.get('works', []),
+        timeline: DB.get('timeline', []),
+        settings: DB.get('settings', {}),
+        images: DB.get('images', []),
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `crystal-admin-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('数据已导出');
+    }
+
+    document.getElementById('import-file')?.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if (data.works) DB.set('works', data.works);
+          if (data.timeline) DB.set('timeline', data.timeline);
+          if (data.settings) DB.set('settings', data.settings);
+          if (data.images) DB.set('images', data.images);
+          showToast('数据导入成功');
+          navigateTo('data');
+        } catch {
+          showToast('文件格式错误', 'error');
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // Use event delegation for file input
+    document.addEventListener('change', (e) => {
+      if (e.target.id === 'import-file') {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const data = JSON.parse(ev.target.result);
+            if (data.works) DB.set('works', data.works);
+            if (data.timeline) DB.set('timeline', data.timeline);
+            if (data.settings) DB.set('settings', data.settings);
+            if (data.images) DB.set('images', data.images);
+            showToast('数据导入成功');
+            navigateTo('data');
+          } catch {
+            showToast('文件格式错误', 'error');
+          }
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    function resetData() {
+      openModal(`
+        <div class="text-center">
+          <div class="w-16 h-16 mx-auto rounded-full bg-cinema-red/20 flex items-center justify-center mb-4">
+            <i data-lucide="alert-triangle" class="w-8 h-8 text-cinema-red"></i>
+          </div>
+          <h3 class="text-xl font-display font-bold text-white mb-2">确认重置</h3>
+          <p class="text-cinema-gray text-sm mb-6">所有数据将恢复到初始状态，当前修改将丢失。确定继续吗？</p>
+          <div class="flex justify-center gap-3">
+            <button onclick="closeModal()" class="admin-btn admin-btn-ghost">取消</button>
+            <button onclick="confirmResetData()" class="admin-btn admin-btn-danger">确认重置</button>
+          </div>
+        </div>
+      `);
+    }
+    function confirmResetData() {
+      DB.set('works', DEFAULT_DATA.works);
+      DB.set('timeline', DEFAULT_DATA.timeline);
+      DB.set('settings', DEFAULT_DATA.settings);
+      DB.set('images', DEFAULT_DATA.images);
+      closeModal();
+      navigateTo('data');
+      showToast('数据已重置为默认状态', 'info');
+    }
+
+    // ==================== 侧边栏移动端 ====================
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    document.getElementById('menu-toggle')?.addEventListener('click', () => {
+      sidebar.classList.remove('-translate-x-full');
+      sidebarOverlay.classList.remove('hidden');
+    });
+    sidebarOverlay?.addEventListener('click', closeSidebar);
+    function closeSidebar() {
+      if (window.innerWidth < 1024) {
+        sidebar.classList.add('-translate-x-full');
+        sidebarOverlay.classList.add('hidden');
+      }
+    }
+
+    // ==================== 登录逻辑 ====================
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+      const errorEl = document.getElementById('login-error');
+      if (login(username, password)) {
+        errorEl.classList.add('hidden');
+        showAdmin();
+      } else {
+        errorEl.textContent = '用户名或密码错误，请重试';
+        errorEl.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', logout);
+
+    // ==================== 显示管理面板 ====================
+    function showAdmin() {
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('admin-panel').classList.remove('hidden');
+      navigateTo('dashboard');
+      lucide.createIcons();
+    }
+
+    // ==================== 时间显示 ====================
+    function updateTime() {
+      const el = document.getElementById('current-time');
+      if (el) {
+        const now = new Date();
+        el.textContent = now.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      }
+    }
+    setInterval(updateTime, 60000);
+    updateTime();
+
+    // ==================== 启动 ====================
+    if (isLoggedIn()) {
+      showAdmin();
+    }
+  </script>
+</body>
+</html>

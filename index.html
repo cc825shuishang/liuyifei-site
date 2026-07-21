@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>刘亦菲官方网站 | Crystal Liu Official</title>
+  <meta name="description" content="刘亦菲官方网站 - 表演作品、粉丝团体、最新动态、微博入口">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'cinema-black': '#0a0a0f',
+            'cinema-dark': '#12121a',
+            'cinema-gold': '#d4a853',
+            'cinema-gold-light': '#f5e6c8',
+            'cinema-gray': '#a1a1aa',
+            'cinema-light': '#fafafa',
+          },
+          fontFamily: {
+            'display': ['Playfair Display', 'serif'],
+            'body': ['Inter', 'sans-serif'],
+          },
+          animation: {
+            'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+            'slow-zoom': 'slowZoom 20s ease-in-out infinite alternate',
+          },
+          keyframes: {
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            slowZoom: {
+              '0%': { transform: 'scale(1)' },
+              '100%': { transform: 'scale(1.1)' },
+            },
+          },
+        }
+      }
+    }
+  </script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style type="text/tailwindcss">
+    @layer base {
+      body {
+        @apply bg-cinema-black text-cinema-light font-body antialiased;
+      }
+      h1, h2, h3, h4, h5, h6 {
+        @apply font-display;
+      }
+    }
+    @layer components {
+      .section-padding {
+        @apply px-4 sm:px-6 lg:px-8 xl:px-12;
+      }
+      .gold-gradient-text {
+        @apply bg-clip-text text-transparent bg-gradient-to-r from-cinema-gold to-cinema-gold-light;
+      }
+      .glass-card {
+        @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl;
+      }
+    }
+  </style>
+</head>
+<body class="overflow-x-hidden">
+  
+  <!-- 导航栏 -->
+  <nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" id="navbar">
+    <div class="max-w-7xl mx-auto section-padding py-4">
+      <div class="flex items-center justify-between">
+        <a href="#" class="text-2xl font-display font-bold text-cinema-gold tracking-wide">
+          CRYSTAL<span class="text-white">.</span>
+        </a>
+        
+        <!-- 桌面导航 -->
+        <div class="hidden md:flex items-center space-x-8">
+          <a href="#about" class="text-sm text-cinema-gray hover:text-cinema-gold transition-colors duration-200">关于演员</a>
+          <a href="#works" class="text-sm text-cinema-gray hover:text-cinema-gold transition-colors duration-200">表演作品</a>
+          <a href="#fans" class="text-sm text-cinema-gray hover:text-cinema-gold transition-colors duration-200">粉丝团体</a>
+          <a href="#weibo" class="text-sm text-cinema-gray hover:text-cinema-gold transition-colors duration-200">微博动态</a>
+        </div>
+        
+        <!-- 移动端菜单按钮 -->
+        <button class="md:hidden text-white p-2" id="mobile-menu-btn" aria-label="菜单">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+      </div>
+      
+      <!-- 移动端菜单 -->
+      <div class="hidden md:hidden mt-4 pb-4 border-t border-white/10" id="mobile-menu">
+        <div class="flex flex-col space-y-4 pt-4">
+          <a href="#about" class="text-cinema-gray hover:text-cinema-gold transition-colors">关于演员</a>
+          <a href="#works" class="text-cinema-gray hover:text-cinema-gold transition-colors">表演作品</a>
+          <a href="#fans" class="text-cinema-gray hover:text-cinema-gold transition-colors">粉丝团体</a>
+          <a href="#weibo" class="text-cinema-gray hover:text-cinema-gold transition-colors">微博动态</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero 区域 -->
+  <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <!-- 背景图片 -->
+    <div class="absolute inset-0 z-0">
+      <div class="absolute inset-0 bg-gradient-to-b from-cinema-black/60 via-cinema-black/40 to-cinema-black z-10"></div>
+      <div class="absolute inset-0 bg-[url('images/hero.jpg')] bg-cover bg-center animate-slow-zoom"></div>
+    </div>
+    
+    <!-- 装饰元素 -->
+    <div class="absolute top-1/4 left-10 w-px h-32 bg-gradient-to-b from-transparent via-cinema-gold/50 to-transparent z-20 hidden lg:block"></div>
+    <div class="absolute bottom-1/4 right-10 w-px h-32 bg-gradient-to-b from-transparent via-cinema-gold/50 to-transparent z-20 hidden lg:block"></div>
+    
+    <div class="relative z-20 max-w-7xl mx-auto section-padding text-center">
+      <div class="animate-fade-in-up">
+        <p class="text-cinema-gold text-sm tracking-[0.3em] uppercase mb-4">Crystal Liu · Official Website</p>
+        <h1 class="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-bold mb-6 leading-tight">
+          <span class="gold-gradient-text">刘亦菲</span>
+        </h1>
+        <p class="text-xl md:text-2xl text-cinema-gray font-light mb-4 max-w-2xl mx-auto">
+          以东方之美，演绎万千角色
+        </p>
+        <p class="text-cinema-gray/70 text-base mb-10 max-w-xl mx-auto">
+          从“神仙姐姐”到“当代花木兰”，用二十年光影沉淀，诠释每一个独一无二的灵魂。
+        </p>
+        
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="#works" class="px-8 py-4 bg-cinema-gold text-cinema-black font-semibold rounded-full hover:bg-cinema-gold-light transition-all duration-300 hover:scale-105 cursor-pointer">
+            探索作品
+          </a>
+          <a href="#weibo" class="px-8 py-4 border border-white/30 text-white font-medium rounded-full hover:bg-white/10 transition-all duration-300 cursor-pointer">
+            微博主页
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 滚动提示 -->
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 animate-bounce">
+      <a href="#about" class="text-cinema-gray hover:text-cinema-gold transition-colors">
+        <i data-lucide="chevron-down" class="w-6 h-6"></i>
+      </a>
+    </div>
+  </section>
+
+  <!-- 关于演员 -->
+  <section id="about" class="py-24 md:py-32 bg-cinema-black relative">
+    <div class="max-w-7xl mx-auto section-padding">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <!-- 演员照片 -->
+        <div class="relative group">
+          <div class="absolute -inset-4 bg-gradient-to-br from-cinema-gold/20 to-transparent rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div class="relative aspect-[3/4] rounded-2xl overflow-hidden border border-white/10">
+            <img 
+              src="images/about.jpg" 
+              alt="刘亦菲写真" 
+              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            >
+          </div>
+          <!-- 数据卡片 -->
+          <div class="absolute -bottom-6 -right-6 glass-card p-6 hidden md:block">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-full bg-cinema-gold/20 flex items-center justify-center">
+                <i data-lucide="film" class="w-6 h-6 text-cinema-gold"></i>
+              </div>
+              <div>
+                <p class="text-2xl font-display font-bold text-white">28</p>
+                <p class="text-sm text-cinema-gray">影视作品</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 简介内容 -->
+        <div>
+          <p class="text-cinema-gold text-sm tracking-[0.2em] uppercase mb-3">About Crystal Liu</p>
+          <h2 class="text-4xl md:text-5xl font-display font-bold mb-6">关于刘亦菲</h2>
+          <div class="space-y-4 text-cinema-gray leading-relaxed">
+            <p>
+              <strong class="text-white">刘亦菲</strong>（Crystal Liu），1987年8月25日出生于湖北省武汉市，华语影视女演员、歌手，毕业于北京电影学院表演系2002级本科。
+            </p>
+            <p>
+              2002年，年仅15岁的刘亦菲出演民国剧《金粉世家》中白秀珠一角正式踏入演艺圈。随后凭借《天龙八部》中的王语嫣、《仙剑奇侠传》中的赵灵儿、《神雕侠侣》中的小龙女等经典角色，被观众亲切地称为“神仙姐姐”。
+            </p>
+            <p>
+              2008年起，她将事业重心转向大银幕，主演《功夫之王》《铜雀台》《花木兰》等影片，成为首位登顶IMDB电影新人排行榜榜首的亚洲女星。2022年回归电视剧领域后，凭借《梦华录》《去有风的地方》《玫瑰的故事》再次收获口碑与热度，展现出更加成熟多面的演技。
+            </p>
+          </div>
+          
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-10">
+            <div class="text-center p-4 glass-card">
+              <p class="text-2xl font-display font-bold text-cinema-gold">2002</p>
+              <p class="text-xs text-cinema-gray mt-1">出道年份</p>
+            </div>
+            <div class="text-center p-4 glass-card">
+              <p class="text-2xl font-display font-bold text-cinema-gold">28</p>
+              <p class="text-xs text-cinema-gray mt-1">影视作品</p>
+            </div>
+            <div class="text-center p-4 glass-card">
+              <p class="text-2xl font-display font-bold text-cinema-gold">12+</p>
+              <p class="text-xs text-cinema-gray mt-1">获奖荣誉</p>
+            </div>
+            <div class="text-center p-4 glass-card">
+              <p class="text-2xl font-display font-bold text-cinema-gold">7400W+</p>
+              <p class="text-xs text-cinema-gray mt-1">微博粉丝</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 表演作品 -->
+  <section id="works" class="py-24 md:py-32 bg-cinema-dark relative">
+    <div class="max-w-7xl mx-auto section-padding">
+      <div class="text-center mb-16">
+        <p class="text-cinema-gold text-sm tracking-[0.2em] uppercase mb-3">Filmography</p>
+        <h2 class="text-4xl md:text-5xl font-display font-bold mb-4">表演作品</h2>
+        <p class="text-cinema-gray max-w-2xl mx-auto">从古装仙侠到现代都市，从东方银幕到好莱坞舞台，每一部作品都是一次全新探索。</p>
+      </div>
+      
+      <!-- 作品分类标签 -->
+      <div class="flex flex-wrap justify-center gap-3 mb-12">
+        <button class="work-filter active px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 bg-cinema-gold text-cinema-black cursor-pointer" data-filter="all">全部</button>
+        <button class="work-filter px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 bg-white/10 text-cinema-gray hover:bg-white/20 hover:text-white cursor-pointer" data-filter="movie">电影</button>
+        <button class="work-filter px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 bg-white/10 text-cinema-gray hover:bg-white/20 hover:text-white cursor-pointer" data-filter="tv">电视剧</button>
+      </div>
+      
+      <!-- 作品列表 -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="works-grid">
+        <!-- 作品卡片 1：仙剑奇侠传 2005 -->
+        <div class="work-item tv group cursor-pointer" data-category="tv">
+          <div class="glass-card overflow-hidden transition-all duration-300 hover:border-cinema-gold/50">
+            <div class="aspect-[4/3] overflow-hidden">
+              <img src="images/xianjian.jpg" alt="《仙剑奇侠传》剧照" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+            </div>
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-cinema-gold px-2 py-1 bg-cinema-gold/10 rounded">电视剧</span>
+                <span class="text-xs text-cinema-gray">2005</span>
+              </div>
+              <h3 class="text-xl font-display font-bold text-white mb-2 group-hover:text-cinema-gold transition-colors">仙剑奇侠传</h3>
+              <p class="text-sm text-cinema-gray mb-3">饰演：赵灵儿</p>
+              <p class="text-sm text-cinema-gray/80 line-clamp-2">古装仙侠剧经典之作，饰演天真善良、背负使命的南诏国公主赵灵儿，成为一代人的青春记忆。</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 作品卡片 2：神雕侠侣 2006 -->
+        <div class="work-item tv group cursor-pointer" data-category="tv">
+          <div class="glass-card overflow-hidden transition-all duration-300 hover:border-cinema-gold/50">
+            <div class="aspect-[4/3] overflow-hidden">
+              <img src="images/shendiao.jpg" alt="《神雕侠侣》剧照" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+            </div>
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-cinema-gold px-2 py-1 bg-cinema-gold/10 rounded">电视剧</span>
+                <span class="text-xs text-cinema-gray">2006</span>
+              </div>
+              <h3 class="text-xl font-display font-bold text-white mb-2 group-hover:text-cinema-gold transition-colors">神雕侠侣</h3>
+              <p class="text-sm text-cinema-gray mb-3">饰演：小龙女</p>
+              <p class="text-sm text-cinema-gray/80 line-clamp-2">金庸武侠经典改编，饰演不食人间烟火的小龙女，成为无数观众心中的“神仙姐姐”。</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 作品卡片 3：花木兰 2020 -->
+        <div class="work-item movie group cursor-pointer" data-category="movie">
+          <div class="glass-card overflow-hidden transition-all duration-300 hover:border-cinema-gold/50">
+            <div class="aspect-[4/3] overflow-hidden">
+              <img src="images/mulan.jpg" alt="《花木兰》剧照" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+            </div>
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-cinema-gold px-2 py-1 bg-cinema-gold/10 rounded">电影</span>
+                <span class="text-xs text-cinema-gray">2020</span>
+              </div>
+              <h3 class="text-xl font-display font-bold text-white mb-2 group-hover:text-cinema-gold transition-colors">花木兰</h3>
+              <p class="text-sm text-cinema-gray mb-3">饰演：花木兰</p>
+              <p class="text-sm text-cinema-gray/80 line-clamp-2">迪士尼真人版电影，刘亦菲成为首位主演迪士尼真人公主电影的华人女演员，展现东方女性的英勇与坚韧。</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 作品卡片 4：梦华录 2022 -->
+        <div class="work-item tv group cursor-pointer" data-category="tv">
+          <div class="glass-card overflow-hidden transition-all duration-300 hover:border-cinema-gold/50">
+            <div class="aspect-[4/3] overflow-hidden">
+              <img src="images/menghualu.jpg" alt="《梦华录》剧照" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+            </div>
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-cinema-gold px-2 py-1 bg-cinema-gold/10 rounded">电视剧</span>
+                <span class="text-xs text-cinema-gray">2022</span>
+              </div>
+              <h3 class="text-xl font-display font-bold text-white mb-2 group-hover:text-cinema-gold transition-colors">梦华录</h3>
+              <p class="text-sm text-cinema-gray mb-3">饰演：赵盼儿</p>
+              <p class="text-sm text-cinema-gray/80 line-clamp-2">古装励志剧，演绎北宋时期三位女子在京城创业奋斗的故事，尽显古典东方美与独立女性力量。</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 作品卡片 5：去有风的地方 2023 -->
+        <div class="work-item tv group cursor-pointer" data-category="tv">
+          <div class="glass-card overflow-hidden transition-all duration-300 hover:border-cinema-gold/50">
+            <div class="aspect-[4/3] overflow-hidden">
+              <img src="images/quyoufeng.jpg" alt="《去有风的地方》剧照" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+            </div>
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-cinema-gold px-2 py-1 bg-cinema-gold/10 rounded">电视剧</span>
+                <span class="text-xs text-cinema-gray">2023</span>
+              </div>
+              <h3 class="text-xl font-display font-bold text-white mb-2 group-hover:text-cinema-gold transition-colors">去有风的地方</h3>
+              <p class="text-sm text-cinema-gray mb-3">饰演：许红豆</p>
+              <p class="text-sm text-cinema-gray/80 line-clamp-2">田园治愈剧，讲述都市白领在云南大理寻找内心平静与生活意义的旅程。</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 作品卡片 6：玫瑰的故事 2024 -->
+        <div class="work-item tv group cursor-pointer" data-category="tv">
+          <div class="glass-card overflow-hidden transition-all duration-300 hover:border-cinema-gold/50">
+            <div class="aspect-[4/3] overflow-hidden">
+              <img src="images/meigui.jpg" alt="《玫瑰的故事》剧照" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+            </div>
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-cinema-gold px-2 py-1 bg-cinema-gold/10 rounded">电视剧</span>
+                <span class="text-xs text-cinema-gray">2024</span>
+              </div>
+              <h3 class="text-xl font-display font-bold text-white mb-2 group-hover:text-cinema-gold transition-colors">玫瑰的故事</h3>
+              <p class="text-sm text-cinema-gray mb-3">饰演：黄亦玫</p>
+              <p class="text-sm text-cinema-gray/80 line-clamp-2">都市情感剧，讲述一位女性在爱情、事业与自我成长中的多重蜕变，引发广泛共鸣。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 更多作品提示 -->
+      <div class="text-center mt-12">
+        <p class="text-cinema-gray text-sm">更多作品：电影《功夫之王》《铜雀台》《倩女幽魂》《夜孔雀》《烽火芳菲》，电视剧《天龙八部》《金粉世家》等。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 时间线 -->
+  <section class="py-24 md:py-32 bg-cinema-black relative">
+    <div class="max-w-5xl mx-auto section-padding">
+      <div class="text-center mb-16">
+        <p class="text-cinema-gold text-sm tracking-[0.2em] uppercase mb-3">Career Timeline</p>
+        <h2 class="text-4xl md:text-5xl font-display font-bold mb-4">演艺历程</h2>
+      </div>
+      
+      <div class="relative">
+        <!-- 时间线中轴 -->
+        <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-cinema-gold/50 via-cinema-gold/30 to-transparent"></div>
+        
+        <!-- 时间线项目 -->
+        <div class="space-y-12">
+          <div class="relative pl-12 md:pl-0">
+            <div class="absolute left-0 md:left-1/2 md:-translate-x-1/2 w-8 h-8 rounded-full bg-cinema-gold/20 border-2 border-cinema-gold flex items-center justify-center">
+              <div class="w-3 h-3 rounded-full bg-cinema-gold"></div>
+            </div>
+            <div class="md:w-1/2 md:pr-12 md:ml-auto md:text-left">
+              <div class="glass-card p-6">
+                <span class="text-cinema-gold font-display font-bold text-xl">2024</span>
+                <h3 class="text-lg font-bold text-white mt-2 mb-2">《玫瑰的故事》热播</h3>
+                <p class="text-cinema-gray text-sm">主演都市剧《玫瑰的故事》饰演黄亦玫，以层次丰富的表演再度引发热议，并获电视剧导演大会年度女主角奖。</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="relative pl-12 md:pl-0">
+            <div class="absolute left-0 md:left-1/2 md:-translate-x-1/2 w-8 h-8 rounded-full bg-cinema-gold/20 border-2 border-cinema-gold flex items-center justify-center">
+              <div class="w-3 h-3 rounded-full bg-cinema-gold"></div>
+            </div>
+            <div class="md:w-1/2 md:pl-12 md:mr-auto md:text-left">
+              <div class="glass-card p-6">
+                <span class="text-cinema-gold font-display font-bold text-xl">2022</span>
+                <h3 class="text-lg font-bold text-white mt-2 mb-2">小荧幕回归之作</h3>
+                <p class="text-cinema-gray text-sm">主演《梦华录》饰演赵盼儿，凭该角色获第十三届澳门国际电视节金莲花最佳女主角奖。</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="relative pl-12 md:pl-0">
+            <div class="absolute left-0 md:left-1/2 md:-translate-x-1/2 w-8 h-8 rounded-full bg-cinema-gold/20 border-2 border-cinema-gold flex items-center justify-center">
+              <div class="w-3 h-3 rounded-full bg-cinema-gold"></div>
+            </div>
+            <div class="md:w-1/2 md:pr-12 md:ml-auto md:text-left">
+              <div class="glass-card p-6">
+                <span class="text-cinema-gold font-display font-bold text-xl">2020</span>
+                <h3 class="text-lg font-bold text-white mt-2 mb-2">走向国际舞台</h3>
+                <p class="text-cinema-gray text-sm">主演迪士尼真人电影《花木兰》，成为首位华人迪士尼真人公主，并提名好莱坞评论家选择超级奖动作电影最佳女演员。</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="relative pl-12 md:pl-0">
+            <div class="absolute left-0 md:left-1/2 md:-translate-x-1/2 w-8 h-8 rounded-full bg-cinema-gold/20 border-2 border-cinema-gold flex items-center justify-center">
+              <div class="w-3 h-3 rounded-full bg-cinema-gold"></div>
+            </div>
+            <div class="md:w-1/2 md:pl-12 md:mr-auto md:text-left">
+              <div class="glass-card p-6">
+                <span class="text-cinema-gold font-display font-bold text-xl">2014</span>
+                <h3 class="text-lg font-bold text-white mt-2 mb-2">首获影后</h3>
+                <p class="text-cinema-gray text-sm">凭借古装片《铜雀台》中灵雎一角，获得第5届澳门国际电影节最佳女主角奖。</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="relative pl-12 md:pl-0">
+            <div class="absolute left-0 md:left-1/2 md:-translate-x-1/2 w-8 h-8 rounded-full bg-cinema-gold/20 border-2 border-cinema-gold flex items-center justify-center">
+              <div class="w-3 h-3 rounded-full bg-cinema-gold"></div>
+            </div>
+            <div class="md:w-1/2 md:pr-12 md:ml-auto md:text-left">
+              <div class="glass-card p-6">
+                <span class="text-cinema-gold font-display font-bold text-xl">2006</span>
+                <h3 class="text-lg font-bold text-white mt-2 mb-2">首位金鹰女神</h3>
+                <p class="text-cinema-gray text-sm">主演《神雕侠侣》小龙女一角受到广泛关注；同年成为金鹰节历史上首位金鹰女神。</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="relative pl-12 md:pl-0">
+            <div class="absolute left-0 md:left-1/2 md:-translate-x-1/2 w-8 h-8 rounded-full bg-cinema-gold/20 border-2 border-cinema-gold flex items-center justify-center">
+              <div class="w-3 h-3 rounded-full bg-cinema-gold"></div>
+            </div>
+            <div class="md:w-1/2 md:pl-12 md:mr-auto md:text-left">
+              <div class="glass-card p-6">
+                <span class="text-cinema-gold font-display font-bold text-xl">2002</span>
+                <h3 class="text-lg font-bold text-white mt-2 mb-2">正式出道</h3>
+                <p class="text-cinema-gray text-sm">15岁考入北京电影学院，同年出演《金粉世家》白秀珠一角，开启演艺生涯。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 粉丝团体 -->
+  <section id="fans" class="py-24 md:py-32 bg-cinema-dark relative">
+    <div class="max-w-7xl mx-auto section-padding">
+      <div class="text-center mb-16">
+        <p class="text-cinema-gold text-sm tracking-[0.2em] uppercase mb-3">Fan Club</p>
+        <h2 class="text-4xl md:text-5xl font-display font-bold mb-4">粉丝团体</h2>
+        <p class="text-cinema-gray max-w-2xl mx-auto">因为有你们的陪伴，每一次前行都更加坚定。</p>
+      </div>
+      
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 粉丝会介绍 -->
+        <div class="glass-card p-8 text-center hover:border-cinema-gold/50 transition-all duration-300">
+          <div class="w-16 h-16 mx-auto rounded-full bg-cinema-gold/20 flex items-center justify-center mb-6">
+            <i data-lucide="heart" class="w-8 h-8 text-cinema-gold"></i>
+          </div>
+          <h3 class="text-xl font-display font-bold text-white mb-3">亦家人 / 菲迷</h3>
+          <p class="text-cinema-gray text-sm mb-4">刘亦菲官方粉丝团体，陪伴她从“神仙姐姐”到“当代花木兰”，一路守护，一路同行。</p>
+          <a href="https://www.weibo.com/lyfba" target="_blank" rel="noopener noreferrer" class="text-cinema-gold text-sm font-medium hover:text-cinema-gold-light transition-colors">了解更多 →</a>
+        </div>
+        
+        <!-- 应援活动 -->
+        <div class="glass-card p-8 text-center hover:border-cinema-gold/50 transition-all duration-300">
+          <div class="w-16 h-16 mx-auto rounded-full bg-cinema-gold/20 flex items-center justify-center mb-6">
+            <i data-lucide="sparkles" class="w-8 h-8 text-cinema-gold"></i>
+          </div>
+          <h3 class="text-xl font-display font-bold text-white mb-3">应援活动</h3>
+          <p class="text-cinema-gray text-sm mb-4">新剧开播、电影上映、生日应援……每一次重要时刻，都有亦家人的温暖守护。</p>
+          <a href="https://www.weibo.com/lyfba" target="_blank" rel="noopener noreferrer" class="text-cinema-gold text-sm font-medium hover:text-cinema-gold-light transition-colors">查看活动 →</a>
+        </div>
+        
+        <!-- 粉丝准则 -->
+        <div class="glass-card p-8 text-center hover:border-cinema-gold/50 transition-all duration-300">
+          <div class="w-16 h-16 mx-auto rounded-full bg-cinema-gold/20 flex items-center justify-center mb-6">
+            <i data-lucide="shield" class="w-8 h-8 text-cinema-gold"></i>
+          </div>
+          <h3 class="text-xl font-display font-bold text-white mb-3">粉丝公约</h3>
+          <p class="text-cinema-gray text-sm mb-4">理性追星，尊重隐私，拒绝网络暴力。让我们共同营造健康、温暖的粉丝文化。</p>
+          <a href="#" class="text-cinema-gold text-sm font-medium hover:text-cinema-gold-light transition-colors">阅读公约 →</a>
+        </div>
+      </div>
+      
+      <!-- 粉丝互动区 -->
+      <div class="mt-16 glass-card p-8 md:p-12">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h3 class="text-2xl md:text-3xl font-display font-bold text-white mb-4">加入亦家人</h3>
+            <p class="text-cinema-gray mb-6">关注刘亦菲官方微博与粉丝会，获取最新行程、活动资讯与独家福利。让我们一起见证更多精彩。</p>
+            <ul class="space-y-3 text-sm text-cinema-gray">
+              <li class="flex items-center gap-3">
+                <i data-lucide="check-circle" class="w-5 h-5 text-cinema-gold"></i>
+                第一时间获取刘亦菲最新动态
+              </li>
+              <li class="flex items-center gap-3">
+                <i data-lucide="check-circle" class="w-5 h-5 text-cinema-gold"></i>
+                参与官方组织的线上线下活动
+              </li>
+              <li class="flex items-center gap-3">
+                <i data-lucide="check-circle" class="w-5 h-5 text-cinema-gold"></i>
+                与全球亦家人一起分享热爱
+              </li>
+            </ul>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-end">
+            <a href="https://weibo.com/3261134763" target="_blank" class="px-8 py-4 bg-cinema-gold text-cinema-black font-semibold rounded-full hover:bg-cinema-gold-light transition-all duration-300 text-center cursor-pointer">
+              官方微博
+            </a>
+            <a href="mailto:fanclub@example.com" class="px-8 py-4 border border-white/30 text-white font-medium rounded-full hover:bg-white/10 transition-all duration-300 text-center cursor-pointer">
+              联系粉丝会
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 微博入口 -->
+  <section id="weibo" class="py-24 md:py-32 bg-cinema-black relative overflow-hidden">
+    <!-- 背景装饰 -->
+    <div class="absolute inset-0 z-0">
+      <div class="absolute top-0 left-1/4 w-96 h-96 bg-cinema-gold/10 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-cinema-gold/5 rounded-full blur-3xl"></div>
+    </div>
+    
+    <div class="max-w-4xl mx-auto section-padding relative z-10">
+      <div class="glass-card p-10 md:p-16 text-center">
+        <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-cinema-gold to-cinema-gold-light flex items-center justify-center mb-8">
+          <i data-lucide="message-circle" class="w-10 h-10 text-cinema-black"></i>
+        </div>
+        <p class="text-cinema-gold text-sm tracking-[0.2em] uppercase mb-3">Weibo Official</p>
+        <h2 class="text-4xl md:text-5xl font-display font-bold mb-4">关注微博</h2>
+        <p class="text-cinema-gray mb-8 max-w-xl mx-auto">
+          点击按钮前往刘亦菲个人微博主页，获取最新动态、幕后花絮与日常分享。记得关注哦！
+        </p>
+        
+        <a 
+          href="https://weibo.com/3261134763" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-cinema-gold to-cinema-gold-light text-cinema-black font-bold text-lg rounded-full hover:shadow-lg hover:shadow-cinema-gold/30 transition-all duration-300 hover:scale-105 cursor-pointer"
+        >
+          <i data-lucide="external-link" class="w-5 h-5"></i>
+          访问个人微博
+        </a>
+        
+        <div class="mt-8 pt-8 border-t border-white/10">
+          <p class="text-cinema-gray text-sm">
+            微博昵称：<span class="text-white font-medium">刘亦菲</span>
+          </p>
+          <p class="text-cinema-gray/60 text-xs mt-2">
+            粉丝超 7400 万，实时动态请关注微博主页
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="py-12 bg-cinema-black border-t border-white/10">
+    <div class="max-w-7xl mx-auto section-padding">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="text-center md:text-left">
+          <a href="#" class="text-2xl font-display font-bold text-cinema-gold tracking-wide">
+            CRYSTAL<span class="text-white">.</span>
+          </a>
+          <p class="text-cinema-gray text-sm mt-2">刘亦菲官方网站 · 以东方之美，演绎万千角色</p>
+        </div>
+        
+        <div class="flex items-center gap-6">
+          <a href="https://weibo.com/3261134763" target="_blank" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-cinema-gray hover:text-cinema-gold hover:bg-white/10 transition-all cursor-pointer" aria-label="微博">
+            <i data-lucide="message-circle" class="w-5 h-5"></i>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-cinema-gray hover:text-cinema-gold hover:bg-white/10 transition-all cursor-pointer" aria-label="微信">
+            <i data-lucide="smartphone" class="w-5 h-5"></i>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-cinema-gray hover:text-cinema-gold hover:bg-white/10 transition-all cursor-pointer" aria-label="小红书">
+            <i data-lucide="book-open" class="w-5 h-5"></i>
+          </a>
+        </div>
+      </div>
+      
+      <div class="mt-8 pt-8 border-t border-white/10 text-center">
+        <p class="text-cinema-gray/60 text-sm">
+          © 2024 刘亦菲官方网站. All rights reserved. | 本站信息整理自公开资料，仅供参考。
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // 初始化 Lucide 图标
+    lucide.createIcons();
+    
+    // 导航栏滚动效果
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        navbar.classList.add('bg-cinema-black/90', 'backdrop-blur-md', 'border-b', 'border-white/10');
+      } else {
+        navbar.classList.remove('bg-cinema-black/90', 'backdrop-blur-md', 'border-b', 'border-white/10');
+      }
+    });
+    
+    // 移动端菜单切换
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+    
+    // 点击移动端菜单链接后关闭菜单
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+      });
+    });
+    
+    // 作品筛选功能
+    const filterBtns = document.querySelectorAll('.work-filter');
+    const workItems = document.querySelectorAll('.work-item');
+    
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // 更新按钮状态
+        filterBtns.forEach(b => {
+          b.classList.remove('bg-cinema-gold', 'text-cinema-black');
+          b.classList.add('bg-white/10', 'text-cinema-gray');
+        });
+        btn.classList.remove('bg-white/10', 'text-cinema-gray');
+        btn.classList.add('bg-cinema-gold', 'text-cinema-black');
+        
+        // 筛选作品
+        const filter = btn.dataset.filter;
+        workItems.forEach(item => {
+          if (filter === 'all' || item.dataset.category === filter) {
+            item.style.display = 'block';
+            setTimeout(() => {
+              item.style.opacity = '1';
+              item.style.transform = 'translateY(0)';
+            }, 50);
+          } else {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+              item.style.display = 'none';
+            }, 300);
+          }
+        });
+      });
+    });
+    
+    // 滚动显示动画
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+    
+    // 为作品卡片和时间线项目添加观察
+    document.querySelectorAll('.work-item, .glass-card').forEach((el, index) => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = `opacity 0.6s ease-out ${index * 0.05}s, transform 0.6s ease-out ${index * 0.05}s`;
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
