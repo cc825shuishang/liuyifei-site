@@ -115,6 +115,30 @@
       from { opacity: 0; transform: scale(0.95) translateY(10px); }
       to { opacity: 1; transform: scale(1) translateY(0); }
     }
+    /* 图片管理 - 进度条 */
+    .upload-progress-bar { transition: width 0.3s ease; }
+    /* 内联编辑 */
+    .inline-edit-input {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(212,175,55,0.3);
+      border-radius: 4px;
+      padding: 2px 8px;
+      color: #fff;
+      outline: none;
+      width: 100%;
+      font-size: 13px;
+    }
+    .inline-edit-input:focus { border-color: rgba(212,175,55,0.6); }
+    .editable-field { cursor: pointer; border-radius: 4px; padding: 2px 6px; transition: background 0.2s; }
+    .editable-field:hover { background: rgba(255,255,255,0.08); }
+    /* 图片选择复选框 */
+    .img-checkbox {
+      position: absolute; top: 8px; left: 8px; z-index: 10;
+      width: 20px; height: 20px; accent-color: #d4af37;
+    }
+    /* 列表视图 */
+    .list-row { transition: background 0.2s; }
+    .list-row:hover { background: rgba(255,255,255,0.03); }
   </style>
 </head>
 <body class="overflow-x-hidden">
@@ -306,14 +330,14 @@
         password: 'admin123',
       },
       images: [
-        { name: 'hero.jpg', path: 'images/hero.jpg', desc: '主海报/首页背景' },
-        { name: 'about.jpg', path: 'images/about.jpg', desc: '关于演员写真' },
-        { name: 'xianjian.jpg', path: 'images/xianjian.jpg', desc: '仙剑奇侠传剧照' },
-        { name: 'shendiao.jpg', path: 'images/shendiao.jpg', desc: '神雕侠侣剧照' },
-        { name: 'mulan.jpg', path: 'images/mulan.jpg', desc: '花木兰剧照' },
-        { name: 'menghualu.jpg', path: 'images/menghualu.jpg', desc: '梦华录剧照' },
-        { name: 'quyoufeng.jpg', path: 'images/quyoufeng.jpg', desc: '去有风的地方剧照' },
-        { name: 'meigui.jpg', path: 'images/meigui.jpg', desc: '玫瑰的故事剧照' },
+        { id: 1, name: 'hero.jpg', path: 'images/hero.jpg', desc: '主海报/首页背景', date: '2025-12-01', location: '北京', author: '官方', category: '海报', uploadedAt: '2026-07-21' },
+        { id: 2, name: 'about.jpg', path: 'images/about.jpg', desc: '关于演员写真', date: '2024-06-15', location: '上海', author: '官方', category: '写真', uploadedAt: '2026-07-21' },
+        { id: 3, name: 'xianjian.jpg', path: 'images/xianjian.jpg', desc: '仙剑奇侠传剧照', date: '2005-01-01', location: '横店', author: '唐人影视', category: '剧照', uploadedAt: '2026-07-21' },
+        { id: 4, name: 'shendiao.jpg', path: 'images/shendiao.jpg', desc: '神雕侠侣剧照', date: '2006-03-01', location: '象山', author: '张纪中工作室', category: '剧照', uploadedAt: '2026-07-21' },
+        { id: 5, name: 'mulan.jpg', path: 'images/mulan.jpg', desc: '花木兰剧照', date: '2020-09-04', location: '新西兰', author: '迪士尼', category: '剧照', uploadedAt: '2026-07-21' },
+        { id: 6, name: 'menghualu.jpg', path: 'images/menghualu.jpg', desc: '梦华录剧照', date: '2022-06-02', location: '襄阳', author: '企鹅影视', category: '剧照', uploadedAt: '2026-07-21' },
+        { id: 7, name: 'quyoufeng.jpg', path: 'images/quyoufeng.jpg', desc: '去有风的地方剧照', date: '2023-01-03', location: '大理', author: '芒果TV', category: '剧照', uploadedAt: '2026-07-21' },
+        { id: 8, name: 'meigui.jpg', path: 'images/meigui.jpg', desc: '玫瑰的故事剧照', date: '2024-06-08', location: '北京', author: '央视', category: '剧照', uploadedAt: '2026-07-21' },
       ]
     };
 
@@ -919,63 +943,275 @@
     });
 
     // ==================== 图片管理 ====================
-    let pendingImageFile = null; // 暂存待上传的图片文件
+    let pendingImageFile = null;
+    const imgState = { viewMode: 'grid', sortBy: 'uploadedAt', sortOrder: 'desc', search: '', category: 'all', selectedIds: [] };
 
     function getGitHubConfig() {
       const s = DB.get('settings', {});
       return { token: s.githubToken || '', user: s.githubUser || '', repo: s.githubRepo || '' };
     }
 
+    function getFilteredImages() {
+      let images = DB.get('images', []);
+      const s = imgState;
+      if (s.search) {
+        const q = s.search.toLowerCase();
+        images = images.filter(i => (i.name+i.desc+i.location+i.author+i.category).toLowerCase().includes(q));
+      }
+      if (s.category !== 'all') images = images.filter(i => i.category === s.category);
+      images.sort((a, b) => {
+        let va = a[s.sortBy] || '', vb = b[s.sortBy] || '';
+        if (s.sortBy === 'name') va = va.toLowerCase(), vb = vb.toLowerCase();
+        if (va < vb) return s.sortOrder === 'asc' ? -1 : 1;
+        if (va > vb) return s.sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+      return images;
+    }
+
     function renderImages() {
-      const images = DB.get('images', []);
+      const allImages = DB.get('images', []);
+      const filtered = getFilteredImages();
+      const categories = [...new Set(allImages.map(i => i.category).filter(Boolean))];
+      const selCount = imgState.selectedIds.length;
+      const s = imgState;
+
       return `
-        <div class="space-y-6">
+        <div class="space-y-5">
           <!-- 拖拽上传区 -->
-          <div id="drop-zone" class="glass-card border-2 border-dashed border-white/15 rounded-2xl p-10 text-center transition-all duration-300 cursor-pointer hover:border-cinema-gold/50 hover:bg-white/[0.03]"
+          <div id="drop-zone" class="glass-card border-2 border-dashed border-white/15 rounded-2xl p-8 text-center transition-all duration-300 cursor-pointer hover:border-cinema-gold/50 hover:bg-white/[0.03]"
                ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" onclick="document.getElementById('file-input').click()">
-            <div class="flex flex-col items-center gap-3">
-              <div class="w-16 h-16 rounded-full bg-cinema-gold/10 flex items-center justify-center">
-                <i data-lucide="upload-cloud" class="w-8 h-8 text-cinema-gold"></i>
+            <div class="flex flex-col items-center gap-2">
+              <div class="w-14 h-14 rounded-full bg-cinema-gold/10 flex items-center justify-center">
+                <i data-lucide="upload-cloud" class="w-7 h-7 text-cinema-gold"></i>
               </div>
               <p class="text-white text-sm font-medium">拖拽图片到此处，或点击选择文件</p>
-              <p class="text-cinema-gray text-xs">支持 JPG / PNG / WEBP / GIF · 上传前可本地预览审阅</p>
+              <p class="text-cinema-gray text-xs">支持批量上传 · JPG / PNG / WEBP / GIF · 上传前本地预览审阅</p>
             </div>
-            <input type="file" id="file-input" class="hidden" accept="image/*" onchange="handleFileSelect(this)">
+            <input type="file" id="file-input" class="hidden" accept="image/*" multiple onchange="handleFileSelect(this)">
           </div>
 
-          <!-- 图片列表 -->
-          <div class="flex items-center justify-between">
-            <p class="text-cinema-gray text-sm">共 ${images.length} 张图片</p>
+          <!-- 上传进度区 -->
+          <div id="upload-progress-area" class="hidden glass-card rounded-xl p-5 space-y-3"></div>
+
+          <!-- 工具栏 -->
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="relative flex-1 min-w-[180px]">
+              <i data-lucide="search" class="w-4 h-4 text-cinema-gray absolute left-3 top-1/2 -translate-y-1/2"></i>
+              <input type="text" class="admin-input pl-9" placeholder="搜索图片名称、描述..." value="${s.search}"
+                     oninput="imgState.search=this.value; navigateTo('images')">
+            </div>
+            <select class="admin-input w-auto" onchange="imgState.sortBy=this.value; navigateTo('images')">
+              <option value="uploadedAt" ${s.sortBy==='uploadedAt'?'selected':''}>按上传时间</option>
+              <option value="name" ${s.sortBy==='name'?'selected':''}>按名称</option>
+              <option value="date" ${s.sortBy==='date'?'selected':''}>按拍摄日期</option>
+              <option value="category" ${s.sortBy==='category'?'selected':''}>按分类</option>
+            </select>
+            <button onclick="imgState.sortOrder = imgState.sortOrder==='asc'?'desc':'asc'; navigateTo('images')" class="admin-btn admin-btn-ghost px-3" title="切换排序方向">
+              <i data-lucide="${s.sortOrder==='asc'?'arrow-up':'arrow-down'}" class="w-4 h-4"></i>
+            </button>
+            <select class="admin-input w-auto" onchange="imgState.category=this.value; navigateTo('images')">
+              <option value="all" ${s.category==='all'?'selected':''}>全部分类</option>
+              ${categories.map(c => `<option value="${c}" ${s.category===c?'selected':''}>${c}</option>`).join('')}
+            </select>
+            <div class="flex bg-white/5 rounded-lg p-0.5">
+              <button onclick="imgState.viewMode='grid'; navigateTo('images')" class="px-2.5 py-1.5 rounded-md ${s.viewMode==='grid'?'bg-cinema-gold/20 text-cinema-gold':'text-cinema-gray'}"><i data-lucide="grid" class="w-4 h-4"></i></button>
+              <button onclick="imgState.viewMode='list'; navigateTo('images')" class="px-2.5 py-1.5 rounded-md ${s.viewMode==='list'?'bg-cinema-gold/20 text-cinema-gold':'text-cinema-gray'}"><i data-lucide="list" class="w-4 h-4"></i></button>
+            </div>
           </div>
-          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            ${images.map(img => `
-              <div class="glass-card overflow-hidden group">
-                <div class="aspect-video overflow-hidden bg-cinema-darker">
-                  <img src="${img.path}" alt="${img.name}" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 200%22><rect fill=%22%23333%22 width=%22300%22 height=%22200%22/><text x=%22150%22 y=%22100%22 fill=%22%23666%22 font-size=%2214%22 text-anchor=%22middle%22>图片未找到</text></svg>'">
-                </div>
-                <div class="p-4">
-                  <div class="flex items-center justify-between mb-2">
-                    <p class="text-white text-sm font-medium">${img.name}</p>
-                    <div class="flex gap-1">
-                      <button onclick="openImageModal('${img.name}')" class="p-1.5 rounded bg-white/5 text-cinema-gray hover:text-cinema-gold transition-colors">
-                        <i data-lucide="edit" class="w-3.5 h-3.5"></i>
-                      </button>
-                      <button onclick="deleteImage('${img.name}')" class="p-1.5 rounded bg-white/5 text-cinema-gray hover:text-cinema-red transition-colors">
-                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <p class="text-cinema-gray text-xs">${img.desc}</p>
-                  <p class="text-cinema-gray/50 text-xs mt-1 font-mono">${img.path}</p>
-                </div>
+
+          <!-- 批量操作栏 -->
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center gap-3">
+              <label class="flex items-center gap-2 cursor-pointer text-sm text-cinema-gray">
+                <input type="checkbox" class="w-4 h-4 accent-cinema-gold" ${selCount===filtered.length&&filtered.length>0?'checked':''} onchange="toggleSelectAllImages(this.checked)">
+                全选
+              </label>
+              <span class="text-cinema-gray text-xs">${filtered.length} 张图片${selCount>0?' · 已选 '+selCount+' 张':''}</span>
+            </div>
+            ${selCount > 0 ? `
+              <div class="flex gap-2">
+                <button onclick="openBatchEditModal()" class="admin-btn admin-btn-ghost flex items-center gap-1.5 text-sm"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i> 批量编辑</button>
+                <button onclick="batchDeleteImages()" class="admin-btn admin-btn-ghost flex items-center gap-1.5 text-sm text-cinema-red"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> 批量删除</button>
               </div>
-            `).join('')}
+            ` : ''}
+          </div>
+
+          <!-- 图片展示 -->
+          ${filtered.length === 0 ? `
+            <div class="text-center py-16 text-cinema-gray">
+              <i data-lucide="image-off" class="w-12 h-12 mx-auto mb-3 opacity-40"></i>
+              <p class="text-sm">暂无图片${s.search||s.category!=='all'?'，试试调整筛选条件':'，拖拽上传吧'}</p>
+            </div>
+          ` : s.viewMode === 'grid' ? `
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              ${filtered.map(img => renderImageCard(img)).join('')}
+            </div>
+          ` : `
+            <div class="glass-card overflow-hidden">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-white/10 text-cinema-gray text-xs">
+                    <th class="p-3 text-left w-10"></th>
+                    <th class="p-3 text-left">缩略图</th>
+                    <th class="p-3 text-left">名称</th>
+                    <th class="p-3 text-left">分类</th>
+                    <th class="p-3 text-left">拍摄日期</th>
+                    <th class="p-3 text-left">地点</th>
+                    <th class="p-3 text-left">作者</th>
+                    <th class="p-3 text-left">描述</th>
+                    <th class="p-3 text-center w-16">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${filtered.map(img => renderImageRow(img)).join('')}
+                </tbody>
+              </table>
+            </div>
+          `}
+        </div>
+      `;
+    }
+
+    // ==================== 网格卡片 ====================
+    function renderImageCard(img) {
+      const checked = imgState.selectedIds.includes(img.id) ? 'checked' : '';
+      return `
+        <div class="glass-card overflow-hidden group relative">
+          <input type="checkbox" class="img-checkbox" ${checked} onchange="toggleImageSelect(${img.id}, this.checked)">
+          <div class="aspect-video overflow-hidden bg-cinema-darker">
+            <img src="${img.path}" alt="${img.name}" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 200%22><rect fill=%22%23333%22 width=%22300%22 height=%22200%22/><text x=%22150%22 y=%22100%22 fill=%22%23666%22 font-size=%2214%22 text-anchor=%22middle%22>图片未找到</text></svg>'">
+          </div>
+          <div class="p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <input type="text" class="inline-edit-input bg-transparent border-none font-medium text-white text-sm flex-1" value="${img.name}" onchange="saveInlineEdit(${img.id}, 'name', this.value)">
+              <div class="flex gap-1 ml-2">
+                <button onclick="deleteImage(${img.id})" class="p-1 rounded bg-white/5 text-cinema-gray hover:text-cinema-red transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-xs bg-cinema-gold/15 text-cinema-gold">${img.category || '未分类'}</span>
+            </div>
+            <input type="text" class="inline-edit-input bg-transparent border-none text-cinema-gray text-xs" value="${img.desc || ''}" placeholder="添加描述..." onchange="saveInlineEdit(${img.id}, 'desc', this.value)">
+            <div class="grid grid-cols-3 gap-2 pt-1">
+              <div>
+                <p class="text-cinema-gray/50 text-[10px]">拍摄日期</p>
+                <input type="text" class="inline-edit-input bg-transparent border-none text-cinema-gray text-xs" value="${img.date || ''}" placeholder="—" onchange="saveInlineEdit(${img.id}, 'date', this.value)">
+              </div>
+              <div>
+                <p class="text-cinema-gray/50 text-[10px]">地点</p>
+                <input type="text" class="inline-edit-input bg-transparent border-none text-cinema-gray text-xs" value="${img.location || ''}" placeholder="—" onchange="saveInlineEdit(${img.id}, 'location', this.value)">
+              </div>
+              <div>
+                <p class="text-cinema-gray/50 text-[10px]">作者</p>
+                <input type="text" class="inline-edit-input bg-transparent border-none text-cinema-gray text-xs" value="${img.author || ''}" placeholder="—" onchange="saveInlineEdit(${img.id}, 'author', this.value)">
+              </div>
+            </div>
           </div>
         </div>
       `;
     }
 
-    // ==================== 拖拽 & 文件选择 ====================
+    // ==================== 列表行 ====================
+    function renderImageRow(img) {
+      const checked = imgState.selectedIds.includes(img.id) ? 'checked' : '';
+      return `
+        <tr class="list-row border-b border-white/5">
+          <td class="p-3"><input type="checkbox" class="w-4 h-4 accent-cinema-gold" ${checked} onchange="toggleImageSelect(${img.id}, this.checked)"></td>
+          <td class="p-3"><img src="${img.path}" class="w-12 h-12 rounded object-cover" onerror="this.style.opacity=0.3"></td>
+          <td class="p-3"><input type="text" class="inline-edit-input bg-transparent border-none text-white text-sm" value="${img.name}" onchange="saveInlineEdit(${img.id}, 'name', this.value)"></td>
+          <td class="p-3"><input type="text" class="inline-edit-input bg-transparent border-none text-cinema-gold text-xs w-20" value="${img.category || ''}" onchange="saveInlineEdit(${img.id}, 'category', this.value)"></td>
+          <td class="p-3"><input type="text" class="inline-edit-input bg-transparent border-none text-cinema-gray text-xs w-24" value="${img.date || ''}" onchange="saveInlineEdit(${img.id}, 'date', this.value)"></td>
+          <td class="p-3"><input type="text" class="inline-edit-input bg-transparent border-none text-cinema-gray text-xs w-20" value="${img.location || ''}" onchange="saveInlineEdit(${img.id}, 'location', this.value)"></td>
+          <td class="p-3"><input type="text" class="inline-edit-input bg-transparent border-none text-cinema-gray text-xs w-24" value="${img.author || ''}" onchange="saveInlineEdit(${img.id}, 'author', this.value)"></td>
+          <td class="p-3"><input type="text" class="inline-edit-input bg-transparent border-none text-cinema-gray text-xs w-32" value="${img.desc || ''}" onchange="saveInlineEdit(${img.id}, 'desc', this.value)"></td>
+          <td class="p-3 text-center"><button onclick="deleteImage(${img.id})" class="p-1 rounded text-cinema-gray hover:text-cinema-red"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td>
+        </tr>
+      `;
+    }
+
+    // ==================== 内联编辑即时保存 ====================
+    function saveInlineEdit(id, field, value) {
+      const images = DB.get('images', []);
+      const idx = images.findIndex(i => i.id === id);
+      if (idx >= 0) {
+        images[idx][field] = value.trim();
+        DB.set('images', images);
+        showToast('已保存', 'success');
+      }
+    }
+
+    // ==================== 批量选择 ====================
+    function toggleImageSelect(id, checked) {
+      if (checked) { if (!imgState.selectedIds.includes(id)) imgState.selectedIds.push(id); }
+      else { imgState.selectedIds = imgState.selectedIds.filter(i => i !== id); }
+      navigateTo('images');
+    }
+    function toggleSelectAllImages(checked) {
+      const filtered = getFilteredImages();
+      imgState.selectedIds = checked ? filtered.map(i => i.id) : [];
+      navigateTo('images');
+    }
+
+    // ==================== 批量编辑 ====================
+    function openBatchEditModal() {
+      openModal(`
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-display font-bold text-white">批量编辑（${imgState.selectedIds.length} 张）</h3>
+          <button onclick="closeModal()" class="text-cinema-gray hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <p class="text-cinema-gray text-xs mb-4">留空的字段不会被修改，仅更新填写的字段。</p>
+        <form id="batch-edit-form" class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div><label class="admin-label">分类</label><input type="text" id="batch-category" class="admin-input" placeholder="不修改"></div>
+            <div><label class="admin-label">作者</label><input type="text" id="batch-author" class="admin-input" placeholder="不修改"></div>
+            <div><label class="admin-label">拍摄日期</label><input type="text" id="batch-date" class="admin-input" placeholder="不修改"></div>
+            <div><label class="admin-label">地点</label><input type="text" id="batch-location" class="admin-input" placeholder="不修改"></div>
+          </div>
+          <div><label class="admin-label">描述</label><input type="text" id="batch-desc" class="admin-input" placeholder="不修改"></div>
+          <div class="flex justify-end gap-3 pt-4">
+            <button type="button" onclick="closeModal()" class="admin-btn admin-btn-ghost">取消</button>
+            <button type="submit" class="admin-btn admin-btn-primary">应用修改</button>
+          </div>
+        </form>
+      `);
+      document.getElementById('batch-edit-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fields = ['category','author','date','location','desc'];
+        const updates = {};
+        fields.forEach(f => { const v = document.getElementById('batch-'+f).value.trim(); if (v) updates[f] = v; });
+        if (Object.keys(updates).length === 0) { showToast('没有填写任何字段', 'info'); return; }
+        const images = DB.get('images', []);
+        images.forEach(img => { if (imgState.selectedIds.includes(img.id)) Object.assign(img, updates); });
+        DB.set('images', images);
+        closeModal(); navigateTo('images');
+        showToast('批量修改已保存', 'success');
+      });
+    }
+
+    function batchDeleteImages() {
+      openModal(`
+        <div class="text-center">
+          <div class="w-16 h-16 mx-auto rounded-full bg-cinema-red/20 flex items-center justify-center mb-4"><i data-lucide="alert-triangle" class="w-8 h-8 text-cinema-red"></i></div>
+          <h3 class="text-xl font-display font-bold text-white mb-2">批量删除确认</h3>
+          <p class="text-cinema-gray text-sm mb-6">将删除 ${imgState.selectedIds.length} 张图片记录（不会删除云端文件），确定吗？</p>
+          <div class="flex justify-center gap-3">
+            <button onclick="closeModal()" class="admin-btn admin-btn-ghost">取消</button>
+            <button onclick="confirmBatchDelete()" class="admin-btn admin-btn-danger">确认删除</button>
+          </div>
+        </div>
+      `);
+    }
+    function confirmBatchDelete() {
+      let images = DB.get('images', []);
+      images = images.filter(i => !imgState.selectedIds.includes(i.id));
+      DB.set('images', images);
+      imgState.selectedIds = [];
+      closeModal(); navigateTo('images');
+      showToast('批量删除完成', 'info');
+    }
+
+    // ==================== 拖拽 & 文件选择（批量） ====================
     function handleDragOver(e) {
       e.preventDefault();
       e.currentTarget.classList.add('border-cinema-gold', 'bg-white/[0.05]');
@@ -987,21 +1223,102 @@
     function handleDrop(e) {
       e.preventDefault();
       e.currentTarget.classList.remove('border-cinema-gold', 'bg-white/[0.05]');
-      const files = e.dataTransfer.files;
-      if (files.length > 0 && files[0].type.startsWith('image/')) {
-        openImageUploadModal(files[0]);
-      } else {
-        showToast('请拖拽图片文件', 'error');
-      }
+      const files = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/'));
+      if (files.length === 0) { showToast('请拖拽图片文件', 'error'); return; }
+      if (files.length === 1) { openImageUploadModal(files[0]); }
+      else { startBatchUpload(files); }
     }
     function handleFileSelect(input) {
-      if (input.files.length > 0) {
-        openImageUploadModal(input.files[0]);
-        input.value = '';
-      }
+      const files = [...input.files].filter(f => f.type.startsWith('image/'));
+      if (files.length === 0) return;
+      if (files.length === 1) { openImageUploadModal(files[0]); }
+      else { startBatchUpload(files); }
+      input.value = '';
     }
 
-    // ==================== 上传预览模态框（本地审阅） ====================
+    // ==================== 批量上传 ====================
+    async function startBatchUpload(files) {
+      const cfg = getGitHubConfig();
+      if (!cfg.token || !cfg.user || !cfg.repo) {
+        showToast('请先在站点设置中配置 GitHub 信息', 'error'); return;
+      }
+      const area = document.getElementById('upload-progress-area');
+      area.classList.remove('hidden');
+
+      // 初始化进度 UI
+      const items = files.map((f, i) => ({ file: f, index: i, status: 'pending', progress: 0, preview: null, error: null }));
+      
+      // 生成缩略图预览
+      for (const item of items) {
+        item.preview = await new Promise(resolve => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = () => resolve(null);
+          reader.readAsDataURL(item.file);
+        });
+      }
+
+      renderUploadProgress(items);
+      if (window.lucide) lucide.createIcons();
+
+      // 逐个上传
+      for (const item of items) {
+        item.status = 'uploading';
+        renderUploadProgress(items);
+        try {
+          const ext = item.file.name.split('.').pop().toLowerCase();
+          const filename = item.file.name.replace(/\.[^.]+$/, '').replace(/[^\w\u4e00-\u9fa5-]/g, '_') + '.' + ext;
+          await uploadSingleToGitHub(item.file, filename);
+          item.status = 'done'; item.progress = 100;
+        } catch (err) {
+          item.status = 'error'; item.error = err.message;
+        }
+        renderUploadProgress(items);
+        if (window.lucide) lucide.createIcons();
+      }
+
+      // 全部完成
+      const successCount = items.filter(i => i.status === 'done').length;
+      const failCount = items.filter(i => i.status === 'error').length;
+      showToast(`上传完成：成功 ${successCount} 张${failCount > 0 ? '，失败 ' + failCount + ' 张' : ''}`, failCount > 0 ? 'error' : 'success');
+      
+      setTimeout(() => { area.classList.add('hidden'); navigateTo('images'); }, 2000);
+    }
+
+    function renderUploadProgress(items) {
+      const area = document.getElementById('upload-progress-area');
+      if (!area) return;
+      const total = items.length;
+      const done = items.filter(i => i.status === 'done').length;
+      const overallPct = Math.round(done / total * 100);
+      area.innerHTML = `
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-white text-sm font-medium">批量上传进度（${done}/${total}）</p>
+          <span class="text-cinema-gold text-sm font-mono">${overallPct}%</span>
+        </div>
+        <div class="w-full h-1.5 bg-white/10 rounded-full mb-4 overflow-hidden">
+          <div class="upload-progress-bar h-full bg-cinema-gold rounded-full" style="width:${overallPct}%"></div>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-60 overflow-y-auto">
+          ${items.map(item => `
+            <div class="flex items-center gap-3 p-2 rounded-lg bg-white/[0.03]">
+              ${item.preview ? `<img src="${item.preview}" class="w-10 h-10 rounded object-cover flex-shrink-0">` : '<div class="w-10 h-10 rounded bg-white/5 flex-shrink-0"></div>'}
+              <div class="flex-1 min-w-0">
+                <p class="text-white text-xs truncate">${item.file.name}</p>
+                <p class="text-xs ${item.status==='done'?'text-green-400':item.status==='error'?'text-cinema-red':item.status==='uploading'?'text-cinema-gold':'text-cinema-gray'}">
+                  ${item.status==='done'?'✓ 完成':item.status==='error'?'✗ '+item.error:item.status==='uploading'?'上传中...':'等待中'}
+                </p>
+              </div>
+              ${item.status==='uploading'?'<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-cinema-gold flex-shrink-0"></i>':''}
+              ${item.status==='done'?'<i data-lucide="check-circle" class="w-4 h-4 text-green-400 flex-shrink-0"></i>':''}
+              ${item.status==='error'?'<i data-lucide="x-circle" class="w-4 h-4 text-cinema-red flex-shrink-0"></i>':''}
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // ==================== 单张上传预览模态框 ====================
     function openImageUploadModal(file) {
       pendingImageFile = file;
       const reader = new FileReader();
@@ -1009,7 +1326,6 @@
         const previewUrl = e.target.result;
         const fileSizeKB = (file.size / 1024).toFixed(1);
         const fileSizeStr = fileSizeKB > 1024 ? (fileSizeKB / 1024).toFixed(2) + ' MB' : fileSizeKB + ' KB';
-        // 生成默认文件名（保留原扩展名）
         const ext = file.name.split('.').pop().toLowerCase();
         const defaultName = file.name.replace(/\.[^.]+$/, '').replace(/[^\w\u4e00-\u9fa5-]/g, '_') + '.' + ext;
 
@@ -1018,10 +1334,8 @@
             <h3 class="text-xl font-display font-bold text-white">上传图片到云端</h3>
             <button onclick="closeModal()" class="text-cinema-gray hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
           </div>
-
-          <!-- 本地预览区 -->
           <div class="mb-5">
-            <div class="rounded-xl overflow-hidden bg-cinema-darger border border-white/10 max-h-80 flex items-center justify-center">
+            <div class="rounded-xl overflow-hidden bg-cinema-darker border border-white/10 max-h-80 flex items-center justify-center">
               <img src="${previewUrl}" alt="预览" class="max-w-full max-h-80 object-contain">
             </div>
             <div class="flex items-center gap-4 mt-3 text-xs text-cinema-gray">
@@ -1030,44 +1344,32 @@
               <span class="flex items-center gap-1 text-cinema-gold"><i data-lucide="eye" class="w-3.5 h-3.5"></i> 本地预览中</span>
             </div>
           </div>
-
-          <!-- 信息填写 -->
           <form id="image-upload-form" class="space-y-4">
-            <div>
-              <label class="admin-label">云端文件名</label>
-              <input type="text" id="upload-filename" class="admin-input" value="${defaultName}" placeholder="例如：newphoto.jpg" required>
-              <p class="text-cinema-gray/50 text-xs mt-1">文件将上传到 images/ 目录下</p>
+            <div class="grid grid-cols-2 gap-4">
+              <div><label class="admin-label">云端文件名</label><input type="text" id="upload-filename" class="admin-input" value="${defaultName}" required></div>
+              <div><label class="admin-label">分类</label><input type="text" id="upload-category" class="admin-input" placeholder="如：剧照、写真、海报"></div>
+              <div><label class="admin-label">描述</label><input type="text" id="upload-desc" class="admin-input" placeholder="图片用途说明"></div>
+              <div><label class="admin-label">拍摄日期</label><input type="text" id="upload-date" class="admin-input" placeholder="如：2024-06-08"></div>
+              <div><label class="admin-label">地点</label><input type="text" id="upload-location" class="admin-input" placeholder="如：北京"></div>
+              <div><label class="admin-label">作者</label><input type="text" id="upload-author" class="admin-input" placeholder="如：官方"></div>
             </div>
-            <div>
-              <label class="admin-label">图片描述</label>
-              <input type="text" id="upload-desc" class="admin-input" placeholder="图片用途说明，例如：新剧照">
-            </div>
-
-            <!-- GitHub 配置检查 -->
             <div id="github-config-check" class="hidden rounded-lg bg-cinema-red/10 border border-cinema-red/30 p-3 text-sm text-cinema-red flex items-center gap-2">
               <i data-lucide="alert-triangle" class="w-4 h-4 flex-shrink-0"></i>
               <span>未配置 GitHub Token，请先到「站点设置」填写 GitHub 云端配置。</span>
             </div>
-
             <div class="flex justify-end gap-3 pt-2">
               <button type="button" onclick="closeModal()" class="admin-btn admin-btn-ghost">取消</button>
-              <button type="submit" id="upload-btn" class="admin-btn admin-btn-primary flex items-center gap-2">
-                <i data-lucide="cloud-upload" class="w-4 h-4"></i>
-                <span>确认上传到云端</span>
-              </button>
+              <button type="submit" id="upload-btn" class="admin-btn admin-btn-primary flex items-center gap-2"><i data-lucide="cloud-upload" class="w-4 h-4"></i><span>确认上传到云端</span></button>
             </div>
           </form>
         `);
 
-        // 检查 GitHub 配置
         const cfg = getGitHubConfig();
         if (!cfg.token || !cfg.user || !cfg.repo) {
           document.getElementById('github-config-check').classList.remove('hidden');
           document.getElementById('upload-btn').disabled = true;
           document.getElementById('upload-btn').classList.add('opacity-50', 'cursor-not-allowed');
         }
-
-        // 表单提交 → 上传到 GitHub
         document.getElementById('image-upload-form').addEventListener('submit', async (e) => {
           e.preventDefault();
           await uploadImageToGitHub();
@@ -1076,88 +1378,58 @@
       reader.readAsDataURL(file);
     }
 
-    // ==================== 上传图片到 GitHub ====================
+    // ==================== 上传到 GitHub ====================
+    async function uploadSingleToGitHub(file, filename, extraFields = {}) {
+      const cfg = getGitHubConfig();
+      if (!cfg.token || !cfg.user || !cfg.repo) throw new Error('未配置 GitHub');
+      const base64 = await fileToBase64(file);
+      const path = 'images/' + filename;
+      const apiURL = `https://api.github.com/repos/${cfg.user}/${cfg.repo}/contents/${path}`;
+      let sha = null;
+      try {
+        const checkRes = await fetch(apiURL, { headers: { 'Authorization': `token ${cfg.token}`, 'Accept': 'application/vnd.github.v3+json' } });
+        if (checkRes.ok) { sha = (await checkRes.json()).sha; }
+      } catch(e) {}
+      const body = { message: sha ? `Update image: ${filename}` : `Upload image: ${filename}`, content: base64 };
+      if (sha) body.sha = sha;
+      const res = await fetch(apiURL, { method: 'PUT', headers: { 'Authorization': `token ${cfg.token}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || '上传失败');
+      return 'images/' + filename;
+    }
+
     async function uploadImageToGitHub() {
       const filename = document.getElementById('upload-filename').value.trim();
-      const desc = document.getElementById('upload-desc').value.trim();
       const cfg = getGitHubConfig();
-
-      if (!cfg.token || !cfg.user || !cfg.repo) {
-        showToast('请先在站点设置中配置 GitHub 信息', 'error');
-        return;
-      }
-      if (!pendingImageFile) {
-        showToast('没有待上传的图片', 'error');
-        return;
-      }
-
+      if (!cfg.token || !cfg.user || !cfg.repo) { showToast('请先配置 GitHub 信息', 'error'); return; }
+      if (!pendingImageFile) { showToast('没有待上传的图片', 'error'); return; }
       const btn = document.getElementById('upload-btn');
       const btnHtml = btn.innerHTML;
       btn.disabled = true;
       btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> <span>上传中...</span>';
       if (window.lucide) lucide.createIcons();
-
       try {
-        // 读取文件为 base64
-        const base64 = await fileToBase64(pendingImageFile);
-        const path = 'images/' + filename;
-        const apiURL = `https://api.github.com/repos/${cfg.user}/${cfg.repo}/contents/${path}`;
-
-        // 检查文件是否已存在
-        let sha = null;
-        try {
-          const checkRes = await fetch(apiURL, {
-            headers: { 'Authorization': `token ${cfg.token}`, 'Accept': 'application/vnd.github.v3+json' }
-          });
-          if (checkRes.ok) {
-            const checkData = await checkRes.json();
-            sha = checkData.sha;
-          }
-        } catch(e) { /* 文件不存在，忽略 */ }
-
-        // 上传到 GitHub
-        const body = {
-          message: sha ? `Update image: ${filename}` : `Upload image: ${filename}`,
-          content: base64,
-        };
-        if (sha) body.sha = sha;
-
-        const res = await fetch(apiURL, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `token ${cfg.token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(body),
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.message || '上传失败');
-        }
-
-        // 上传成功，保存图片记录
+        await uploadSingleToGitHub(pendingImageFile, filename);
         const images = DB.get('images', []);
-        const imagePath = 'images/' + filename;
+        const maxId = images.reduce((m, i) => Math.max(m, i.id || 0), 0);
+        const record = {
+          id: maxId + 1, name: filename, path: 'images/' + filename,
+          desc: document.getElementById('upload-desc').value.trim(),
+          category: document.getElementById('upload-category').value.trim() || '未分类',
+          date: document.getElementById('upload-date').value.trim(),
+          location: document.getElementById('upload-location').value.trim(),
+          author: document.getElementById('upload-author').value.trim(),
+          uploadedAt: new Date().toISOString().split('T')[0],
+        };
         const existingIdx = images.findIndex(i => i.name === filename);
-        const record = { name: filename, path: imagePath, desc: desc };
-
-        if (existingIdx >= 0) {
-          images[existingIdx] = record;
-        } else {
-          images.push(record);
-        }
+        if (existingIdx >= 0) { record.id = images[existingIdx].id; images[existingIdx] = record; }
+        else { images.push(record); }
         DB.set('images', images);
-
         pendingImageFile = null;
-        closeModal();
-        navigateTo('images');
+        closeModal(); navigateTo('images');
         showToast('图片已上传到云端并保存记录', 'success');
       } catch (err) {
-        btn.disabled = false;
-        btn.innerHTML = btnHtml;
+        btn.disabled = false; btn.innerHTML = btnHtml;
         if (window.lucide) lucide.createIcons();
         showToast('上传失败：' + err.message, 'error');
       }
@@ -1166,87 +1438,32 @@
     function fileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => {
-          // 去掉 data:image/xxx;base64, 前缀
-          const result = reader.result;
-          const base64 = result.split(',')[1];
-          resolve(base64);
-        };
+        reader.onload = () => resolve(reader.result.split(',')[1]);
         reader.onerror = reject;
         reader.readAsDataURL(file);
       });
     }
 
-    // ==================== 编辑/删除图片记录 ====================
-    function openImageModal(name) {
-      const images = DB.get('images', []);
-      const img = name ? images.find(i => i.name === name) : { name: '', path: '', desc: '' };
-      openModal(`
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="text-xl font-display font-bold text-white">${name ? '编辑图片记录' : '添加图片记录'}</h3>
-          <button onclick="closeModal()" class="text-cinema-gray hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-        </div>
-        <form id="image-form" class="space-y-4">
-          <div>
-            <label class="admin-label">图片名称</label>
-            <input type="text" id="img-name" class="admin-input" value="${img.name}" placeholder="例如：newphoto.jpg" required>
-          </div>
-          <div>
-            <label class="admin-label">图片路径</label>
-            <input type="text" id="img-path" class="admin-input" value="${img.path}" placeholder="例如：images/newphoto.jpg" required>
-          </div>
-          <div>
-            <label class="admin-label">描述</label>
-            <input type="text" id="img-desc" class="admin-input" value="${img.desc}" placeholder="图片用途说明">
-          </div>
-          <div class="flex justify-end gap-3 pt-4">
-            <button type="button" onclick="closeModal()" class="admin-btn admin-btn-ghost">取消</button>
-            <button type="submit" class="admin-btn admin-btn-primary">${name ? '保存修改' : '添加'}</button>
-          </div>
-        </form>
-      `);
-      document.getElementById('image-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const data = {
-          name: document.getElementById('img-name').value,
-          path: document.getElementById('img-path').value,
-          desc: document.getElementById('img-desc').value,
-        };
-        const images = DB.get('images', []);
-        if (name) {
-          const idx = images.findIndex(i => i.name === name);
-          images[idx] = data;
-        } else {
-          images.push(data);
-        }
-        DB.set('images', images);
-        closeModal();
-        navigateTo('images');
-        showToast(name ? '图片记录已更新' : '图片记录已添加');
-      });
-    }
-
-    function deleteImage(name) {
+    // ==================== 编辑/删除 ====================
+    function deleteImage(id) {
       openModal(`
         <div class="text-center">
-          <div class="w-16 h-16 mx-auto rounded-full bg-cinema-red/20 flex items-center justify-center mb-4">
-            <i data-lucide="alert-triangle" class="w-8 h-8 text-cinema-red"></i>
-          </div>
+          <div class="w-16 h-16 mx-auto rounded-full bg-cinema-red/20 flex items-center justify-center mb-4"><i data-lucide="alert-triangle" class="w-8 h-8 text-cinema-red"></i></div>
           <h3 class="text-xl font-display font-bold text-white mb-2">确认删除</h3>
           <p class="text-cinema-gray text-sm mb-6">删除图片记录（不会删除云端文件），确定吗？</p>
           <div class="flex justify-center gap-3">
             <button onclick="closeModal()" class="admin-btn admin-btn-ghost">取消</button>
-            <button onclick="confirmDeleteImage('${name}')" class="admin-btn admin-btn-danger">确认删除</button>
+            <button onclick="confirmDeleteImage(${id})" class="admin-btn admin-btn-danger">确认删除</button>
           </div>
         </div>
       `);
     }
-    function confirmDeleteImage(name) {
+    function confirmDeleteImage(id) {
       let images = DB.get('images', []);
-      images = images.filter(i => i.name !== name);
+      images = images.filter(i => i.id !== id);
       DB.set('images', images);
-      closeModal();
-      navigateTo('images');
+      imgState.selectedIds = imgState.selectedIds.filter(i => i !== id);
+      closeModal(); navigateTo('images');
       showToast('图片记录已删除', 'info');
     }
 
