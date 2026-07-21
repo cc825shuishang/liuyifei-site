@@ -200,13 +200,17 @@
           <i data-lucide="clock" class="w-5 h-5"></i>
           <span>演艺历程</span>
         </a>
+        <a class="sidebar-link sidebar-link-inactive" data-page="endorsements">
+          <i data-lucide="briefcase" class="w-5 h-5"></i>
+          <span>代言商务</span>
+        </a>
         <a class="sidebar-link sidebar-link-inactive" data-page="settings">
           <i data-lucide="settings" class="w-5 h-5"></i>
           <span>站点设置</span>
         </a>
         <a class="sidebar-link sidebar-link-inactive" data-page="images">
           <i data-lucide="image" class="w-5 h-5"></i>
-          <span>图片管理</span>
+          <span>主页图片管理</span>
         </a>
         <a class="sidebar-link sidebar-link-inactive" data-page="account">
           <i data-lucide="user-cog" class="w-5 h-5"></i>
@@ -303,12 +307,18 @@
         { id: 6, title: '玫瑰的故事', year: 2024, type: 'tv', role: '黄亦玫', image: 'images/meigui.jpg', desc: '都市情感剧，讲述一位女性在爱情、事业与自我成长中的多重蜕变，引发广泛共鸣。' },
       ],
       timeline: [
-        { id: 1, year: 2024, title: '《玫瑰的故事》热播', desc: '主演都市剧《玫瑰的故事》饰演黄亦玫，以层次丰富的表演再度引发热议，并获电视剧导演大会年度女主角奖。' },
-        { id: 2, year: 2022, title: '小荧幕回归之作', desc: '主演《梦华录》饰演赵盼儿，凭该角色获第十三届澳门国际电视节金莲花最佳女主角奖。' },
-        { id: 3, year: 2020, title: '走向国际舞台', desc: '主演迪士尼真人电影《花木兰》，成为首位华人迪士尼真人公主，并提名好莱坞评论家选择超级奖动作电影最佳女演员。' },
-        { id: 4, year: 2014, title: '首获影后', desc: '凭借古装片《铜雀台》中灵雎一角，获得第5届澳门国际电影节最佳女主角奖。' },
-        { id: 5, year: 2006, title: '首位金鹰女神', desc: '主演《神雕侠侣》小龙女一角受到广泛关注；同年成为金鹰节历史上首位金鹰女神。' },
-        { id: 6, year: 2002, title: '正式出道', desc: '15岁考入北京电影学院，同年出演《金粉世家》白秀珠一角，开启演艺生涯。' },
+        { id: 1, year: 2024, title: '《玫瑰的故事》热播', desc: '主演都市剧《玫瑰的故事》饰演黄亦玫，以层次丰富的表演再度引发热议，并获电视剧导演大会年度女主角奖。', image: 'images/meigui.jpg' },
+        { id: 2, year: 2022, title: '小荧幕回归之作', desc: '主演《梦华录》饰演赵盼儿，凭该角色获第十三届澳门国际电视节金莲花最佳女主角奖。', image: 'images/menghualu.jpg' },
+        { id: 3, year: 2020, title: '走向国际舞台', desc: '主演迪士尼真人电影《花木兰》，成为首位华人迪士尼真人公主，并提名好莱坞评论家选择超级奖动作电影最佳女演员。', image: 'images/mulan.jpg' },
+        { id: 4, year: 2014, title: '首获影后', desc: '凭借古装片《铜雀台》中灵雎一角，获得第5届澳门国际电影节最佳女主角奖。', image: '' },
+        { id: 5, year: 2006, title: '首位金鹰女神', desc: '主演《神雕侠侣》小龙女一角受到广泛关注；同年成为金鹰节历史上首位金鹰女神。', image: 'images/shendiao.jpg' },
+        { id: 6, year: 2002, title: '正式出道', desc: '15岁考入北京电影学院，同年出演《金粉世家》白秀珠一角，开启演艺生涯。', image: '' },
+      ],
+      endorsements: [
+        { id: 1, brand: '品牌代言位', image: '', desc: '待添加品牌信息', link: '', category: '代言' },
+        { id: 2, brand: '品牌代言位', image: '', desc: '待添加品牌信息', link: '', category: '代言' },
+        { id: 3, brand: '品牌代言位', image: '', desc: '待添加品牌信息', link: '', category: '代言' },
+        { id: 4, brand: '品牌代言位', image: '', desc: '待添加品牌信息', link: '', category: '代言' },
       ],
       settings: {
         siteTitle: '刘亦菲官方网站',
@@ -404,8 +414,9 @@
       dashboard: { title: '数据看板', render: renderDashboard },
       works: { title: '作品管理', render: renderWorks },
       timeline: { title: '演艺历程', render: renderTimeline },
+      endorsements: { title: '代言商务', render: renderEndorsements },
       settings: { title: '站点设置', render: renderSettings },
-      images: { title: '图片管理', render: renderImages },
+      images: { title: '主页图片管理', render: renderImages },
       account: { title: '账户管理', render: renderAccount },
       data: { title: '数据管理', render: renderData },
     };
@@ -441,6 +452,7 @@
     function renderDashboard() {
       const works = DB.get('works', []);
       const timeline = DB.get('timeline', []);
+      const endorsements = DB.get('endorsements', []);
       const settings = DB.get('settings', {});
       const images = DB.get('images', []);
       const movies = works.filter(w => w.type === 'movie').length;
@@ -486,11 +498,11 @@
             <div class="glass-card p-6">
               <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-xl bg-cinema-gold/20 flex items-center justify-center">
-                  <i data-lucide="users" class="w-6 h-6 text-cinema-gold"></i>
+                  <i data-lucide="briefcase" class="w-6 h-6 text-cinema-gold"></i>
                 </div>
                 <div>
-                  <p class="text-3xl font-display font-bold text-white">${settings.weiboFollowers || '-'}</p>
-                  <p class="text-sm text-cinema-gray">微博粉丝</p>
+                  <p class="text-3xl font-display font-bold text-white">${endorsements.length}</p>
+                  <p class="text-sm text-cinema-gray">代言商务</p>
                 </div>
               </div>
             </div>
@@ -842,9 +854,10 @@
                 <div class="flex-shrink-0 w-16 text-center">
                   <p class="text-2xl font-display font-bold text-cinema-gold">${t.year}</p>
                 </div>
+                ${t.image ? `<img src="${t.image}" alt="${t.title}" class="flex-shrink-0 w-20 h-20 rounded-lg object-cover" onerror="this.style.opacity=0.3">` : '<div class="flex-shrink-0 w-20 h-20 rounded-lg bg-white/5 flex items-center justify-center"><i data-lucide="image-off" class="w-6 h-6 text-cinema-gray/40"></i></div>'}
                 <div class="flex-1 min-w-0">
                   <h3 class="text-white font-bold mb-1">${t.title}</h3>
-                  <p class="text-cinema-gray text-sm">${t.desc}</p>
+                  <p class="text-cinema-gray text-sm line-clamp-2">${t.desc}</p>
                 </div>
                 <div class="flex items-center gap-2 flex-shrink-0">
                   <button onclick="openTimelineModal(${t.id})" class="p-2 rounded-lg bg-white/5 text-cinema-gray hover:text-cinema-gold hover:bg-white/10 transition-colors">
@@ -863,24 +876,46 @@
 
     function openTimelineModal(id) {
       const timeline = DB.get('timeline', []);
-      const item = id ? timeline.find(t => t.id === id) : { id: null, year: '', title: '', desc: '' };
+      const item = id ? timeline.find(t => t.id === id) : { id: null, year: '', title: '', desc: '', image: '' };
       openModal(`
         <div class="flex items-center justify-between mb-6">
           <h3 class="text-xl font-display font-bold text-white">${id ? '编辑历程' : '添加历程'}</h3>
           <button onclick="closeModal()" class="text-cinema-gray hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
         <form id="timeline-form" class="space-y-4">
-          <div>
-            <label class="admin-label">年份</label>
-            <input type="number" id="tl-year" class="admin-input" value="${item.year}" required>
-          </div>
-          <div>
-            <label class="admin-label">标题</label>
-            <input type="text" id="tl-title" class="admin-input" value="${item.title}" required>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="admin-label">年份</label>
+              <input type="number" id="tl-year" class="admin-input" value="${item.year}" required>
+            </div>
+            <div>
+              <label class="admin-label">标题</label>
+              <input type="text" id="tl-title" class="admin-input" value="${item.title}" required>
+            </div>
           </div>
           <div>
             <label class="admin-label">描述</label>
             <textarea id="tl-desc" class="admin-input" rows="4" required>${item.desc}</textarea>
+          </div>
+          <div>
+            <label class="admin-label">历程图片</label>
+            <div id="tl-cover-drop" class="mb-2 rounded-lg border-2 border-dashed border-white/15 p-4 text-center cursor-pointer transition-all hover:border-cinema-gold/50 hover:bg-white/[0.03]"
+                 ondragover="handleTlCoverDragOver(event)" ondragleave="handleTlCoverDragLeave(event)" ondrop="handleTlCoverDrop(event)" onclick="document.getElementById('tl-cover-input').click()">
+              <div id="tl-cover-preview-wrap" class="hidden mb-2">
+                <img id="tl-cover-preview" class="max-h-32 mx-auto rounded-lg object-cover" alt="预览">
+              </div>
+              <div id="tl-cover-placeholder" class="flex flex-col items-center gap-1.5 py-2">
+                <i data-lucide="upload-cloud" class="w-6 h-6 text-cinema-gold"></i>
+                <p class="text-cinema-gray text-xs">拖拽图片到此处上传，或点击选择文件</p>
+              </div>
+              <div id="tl-cover-uploading" class="hidden flex flex-col items-center gap-1.5 py-2">
+                <i data-lucide="loader-2" class="w-6 h-6 text-cinema-gold animate-spin"></i>
+                <p class="text-cinema-gold text-xs">上传中...</p>
+              </div>
+              <input type="file" id="tl-cover-input" class="hidden" accept="image/*" onchange="handleTlCoverSelect(this)">
+            </div>
+            <input type="text" id="tl-image" class="admin-input" value="${item.image || ''}" placeholder="图片路径，如 images/meigui.jpg">
+            <p class="text-cinema-gray/50 text-xs mt-1">可拖拽上传新图片，或手动输入路径</p>
           </div>
           <div class="flex justify-end gap-3 pt-4">
             <button type="button" onclick="closeModal()" class="admin-btn admin-btn-ghost">取消</button>
@@ -888,6 +923,12 @@
           </div>
         </form>
       `);
+      // 如果编辑历程且已有图片，显示预览
+      if (item.image) {
+        document.getElementById('tl-cover-preview').src = item.image;
+        document.getElementById('tl-cover-preview-wrap').classList.remove('hidden');
+        document.getElementById('tl-cover-placeholder').classList.add('hidden');
+      }
       document.getElementById('timeline-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const data = {
@@ -895,6 +936,7 @@
           year: parseInt(document.getElementById('tl-year').value),
           title: document.getElementById('tl-title').value,
           desc: document.getElementById('tl-desc').value,
+          image: document.getElementById('tl-image').value,
         };
         const timeline = DB.get('timeline', []);
         if (id) {
@@ -932,6 +974,263 @@
       closeModal();
       navigateTo('timeline');
       showToast('历程已删除', 'info');
+    }
+
+    // ==================== 历程图片拖拽上传 ====================
+    function handleTlCoverDragOver(e) {
+      e.preventDefault();
+      e.currentTarget.classList.add('border-cinema-gold', 'bg-white/[0.05]');
+    }
+    function handleTlCoverDragLeave(e) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('border-cinema-gold', 'bg-white/[0.05]');
+    }
+    function handleTlCoverDrop(e) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('border-cinema-gold', 'bg-white/[0.05]');
+      const files = e.dataTransfer.files;
+      if (files.length > 0 && files[0].type.startsWith('image/')) {
+        uploadTlCover(files[0]);
+      } else {
+        showToast('请拖拽图片文件', 'error');
+      }
+    }
+    function handleTlCoverSelect(input) {
+      if (input.files.length > 0) {
+        uploadTlCover(input.files[0]);
+        input.value = '';
+      }
+    }
+    async function uploadTlCover(file) {
+      const placeholder = document.getElementById('tl-cover-placeholder');
+      const uploading = document.getElementById('tl-cover-uploading');
+      const previewWrap = document.getElementById('tl-cover-preview-wrap');
+      if (placeholder) placeholder.classList.add('hidden');
+      if (previewWrap) previewWrap.classList.add('hidden');
+      if (uploading) uploading.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+      try {
+        const ext = file.name.split('.').pop().toLowerCase();
+        const filename = 'timeline_' + Date.now() + '.' + ext;
+        await uploadSingleToGitHub(file, filename);
+        const images = DB.get('images', []);
+        const maxId = images.reduce((m, i) => Math.max(m, i.id || 0), 0);
+        images.push({ id: maxId + 1, name: filename, path: 'images/' + filename, desc: '演艺历程图片', category: '历程', date: '', location: '', author: '', uploadedAt: new Date().toISOString().split('T')[0] });
+        DB.set('images', images);
+        const imgPath = 'images/' + filename;
+        document.getElementById('tl-image').value = imgPath;
+        if (uploading) uploading.classList.add('hidden');
+        document.getElementById('tl-cover-preview').src = imgPath;
+        if (previewWrap) previewWrap.classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+        showToast('历程图片上传成功', 'success');
+      } catch (err) {
+        if (uploading) uploading.classList.add('hidden');
+        if (placeholder) placeholder.classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+        showToast('上传失败：' + err.message, 'error');
+      }
+    }
+
+    // ==================== 代言商务 ====================
+    function renderEndorsements() {
+      const endorsements = DB.get('endorsements', []);
+      return `
+        <div class="space-y-6">
+          <div class="flex items-center justify-between">
+            <p class="text-cinema-gray text-sm">共 ${endorsements.length} 个代言</p>
+            <button onclick="openEndorsementModal()" class="admin-btn admin-btn-primary flex items-center gap-2">
+              <i data-lucide="plus" class="w-4 h-4"></i> 添加代言
+            </button>
+          </div>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            ${endorsements.map(e => `
+              <div class="glass-card overflow-hidden group">
+                <div class="aspect-square overflow-hidden bg-cinema-darker">
+                  ${e.image ? `<img src="${e.image}" alt="${e.brand}" class="w-full h-full object-cover" onerror="this.style.opacity=0.3">` : '<div class="w-full h-full flex items-center justify-center text-cinema-gray/30"><i data-lucide="image" class="w-12 h-12"></i></div>'}
+                </div>
+                <div class="p-4">
+                  <div class="flex items-center justify-between mb-2">
+                    <p class="text-white text-sm font-medium truncate">${e.brand}</p>
+                    <div class="flex gap-1 flex-shrink-0">
+                      <button onclick="openEndorsementModal(${e.id})" class="p-1.5 rounded bg-white/5 text-cinema-gray hover:text-cinema-gold transition-colors">
+                        <i data-lucide="edit" class="w-3.5 h-3.5"></i>
+                      </button>
+                      <button onclick="deleteEndorsement(${e.id})" class="p-1.5 rounded bg-white/5 text-cinema-gray hover:text-cinema-red transition-colors">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <p class="text-cinema-gray text-xs line-clamp-2">${e.desc}</p>
+                  ${e.link ? `<a href="${e.link}" target="_blank" class="text-cinema-gold text-xs mt-2 inline-block hover:underline">查看链接 →</a>` : ''}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function openEndorsementModal(id) {
+      const endorsements = DB.get('endorsements', []);
+      const item = id ? endorsements.find(e => e.id === id) : { id: null, brand: '', image: '', desc: '', link: '', category: '代言' };
+      openModal(`
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-display font-bold text-white">${id ? '编辑代言' : '添加代言'}</h3>
+          <button onclick="closeModal()" class="text-cinema-gray hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <form id="endorsement-form" class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="admin-label">品牌名称</label>
+              <input type="text" id="end-brand" class="admin-input" value="${item.brand}" placeholder="如：路易威登" required>
+            </div>
+            <div>
+              <label class="admin-label">分类</label>
+              <input type="text" id="end-category" class="admin-input" value="${item.category}" placeholder="如：代言/商务合作">
+            </div>
+          </div>
+          <div>
+            <label class="admin-label">品牌图片</label>
+            <div id="end-cover-drop" class="mb-2 rounded-lg border-2 border-dashed border-white/15 p-4 text-center cursor-pointer transition-all hover:border-cinema-gold/50 hover:bg-white/[0.03]"
+                 ondragover="handleEndCoverDragOver(event)" ondragleave="handleEndCoverDragLeave(event)" ondrop="handleEndCoverDrop(event)" onclick="document.getElementById('end-cover-input').click()">
+              <div id="end-cover-preview-wrap" class="hidden mb-2">
+                <img id="end-cover-preview" class="max-h-32 mx-auto rounded-lg object-cover" alt="预览">
+              </div>
+              <div id="end-cover-placeholder" class="flex flex-col items-center gap-1.5 py-2">
+                <i data-lucide="upload-cloud" class="w-6 h-6 text-cinema-gold"></i>
+                <p class="text-cinema-gray text-xs">拖拽图片到此处上传，或点击选择文件</p>
+              </div>
+              <div id="end-cover-uploading" class="hidden flex flex-col items-center gap-1.5 py-2">
+                <i data-lucide="loader-2" class="w-6 h-6 text-cinema-gold animate-spin"></i>
+                <p class="text-cinema-gold text-xs">上传中...</p>
+              </div>
+              <input type="file" id="end-cover-input" class="hidden" accept="image/*" onchange="handleEndCoverSelect(this)">
+            </div>
+            <input type="text" id="end-image" class="admin-input" value="${item.image || ''}" placeholder="图片路径，如 images/brand1.jpg">
+            <p class="text-cinema-gray/50 text-xs mt-1">可拖拽上传新图片，或手动输入路径</p>
+          </div>
+          <div>
+            <label class="admin-label">品牌描述</label>
+            <textarea id="end-desc" class="admin-input" rows="3" placeholder="品牌合作描述">${item.desc}</textarea>
+          </div>
+          <div>
+            <label class="admin-label">品牌链接（可选）</label>
+            <input type="url" id="end-link" class="admin-input" value="${item.link}" placeholder="https://...">
+          </div>
+          <div class="flex justify-end gap-3 pt-4">
+            <button type="button" onclick="closeModal()" class="admin-btn admin-btn-ghost">取消</button>
+            <button type="submit" class="admin-btn admin-btn-primary">${id ? '保存修改' : '添加'}</button>
+          </div>
+        </form>
+      `);
+      if (item.image) {
+        document.getElementById('end-cover-preview').src = item.image;
+        document.getElementById('end-cover-preview-wrap').classList.remove('hidden');
+        document.getElementById('end-cover-placeholder').classList.add('hidden');
+      }
+      document.getElementById('endorsement-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = {
+          id: id || Date.now(),
+          brand: document.getElementById('end-brand').value,
+          image: document.getElementById('end-image').value,
+          desc: document.getElementById('end-desc').value,
+          link: document.getElementById('end-link').value,
+          category: document.getElementById('end-category').value || '代言',
+        };
+        const endorsements = DB.get('endorsements', []);
+        if (id) {
+          const idx = endorsements.findIndex(e => e.id === id);
+          endorsements[idx] = data;
+        } else {
+          endorsements.push(data);
+        }
+        DB.set('endorsements', endorsements);
+        closeModal();
+        navigateTo('endorsements');
+        showToast(id ? '代言已更新' : '代言已添加');
+      });
+    }
+
+    function deleteEndorsement(id) {
+      openModal(`
+        <div class="text-center">
+          <div class="w-16 h-16 mx-auto rounded-full bg-cinema-red/20 flex items-center justify-center mb-4">
+            <i data-lucide="alert-triangle" class="w-8 h-8 text-cinema-red"></i>
+          </div>
+          <h3 class="text-xl font-display font-bold text-white mb-2">确认删除</h3>
+          <p class="text-cinema-gray text-sm mb-6">此操作不可撤销，确定要删除这个代言吗？</p>
+          <div class="flex justify-center gap-3">
+            <button onclick="closeModal()" class="admin-btn admin-btn-ghost">取消</button>
+            <button onclick="confirmDeleteEndorsement(${id})" class="admin-btn admin-btn-danger">确认删除</button>
+          </div>
+        </div>
+      `);
+    }
+    function confirmDeleteEndorsement(id) {
+      let endorsements = DB.get('endorsements', []);
+      endorsements = endorsements.filter(e => e.id !== id);
+      DB.set('endorsements', endorsements);
+      closeModal();
+      navigateTo('endorsements');
+      showToast('代言已删除', 'info');
+    }
+
+    // ==================== 代言图片拖拽上传 ====================
+    function handleEndCoverDragOver(e) {
+      e.preventDefault();
+      e.currentTarget.classList.add('border-cinema-gold', 'bg-white/[0.05]');
+    }
+    function handleEndCoverDragLeave(e) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('border-cinema-gold', 'bg-white/[0.05]');
+    }
+    function handleEndCoverDrop(e) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('border-cinema-gold', 'bg-white/[0.05]');
+      const files = e.dataTransfer.files;
+      if (files.length > 0 && files[0].type.startsWith('image/')) {
+        uploadEndCover(files[0]);
+      } else {
+        showToast('请拖拽图片文件', 'error');
+      }
+    }
+    function handleEndCoverSelect(input) {
+      if (input.files.length > 0) {
+        uploadEndCover(input.files[0]);
+        input.value = '';
+      }
+    }
+    async function uploadEndCover(file) {
+      const placeholder = document.getElementById('end-cover-placeholder');
+      const uploading = document.getElementById('end-cover-uploading');
+      const previewWrap = document.getElementById('end-cover-preview-wrap');
+      if (placeholder) placeholder.classList.add('hidden');
+      if (previewWrap) previewWrap.classList.add('hidden');
+      if (uploading) uploading.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+      try {
+        const ext = file.name.split('.').pop().toLowerCase();
+        const filename = 'endorse_' + Date.now() + '.' + ext;
+        await uploadSingleToGitHub(file, filename);
+        const images = DB.get('images', []);
+        const maxId = images.reduce((m, i) => Math.max(m, i.id || 0), 0);
+        images.push({ id: maxId + 1, name: filename, path: 'images/' + filename, desc: '代言商务图片', category: '代言', date: '', location: '', author: '', uploadedAt: new Date().toISOString().split('T')[0] });
+        DB.set('images', images);
+        const imgPath = 'images/' + filename;
+        document.getElementById('end-image').value = imgPath;
+        if (uploading) uploading.classList.add('hidden');
+        document.getElementById('end-cover-preview').src = imgPath;
+        if (previewWrap) previewWrap.classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+        showToast('代言图片上传成功', 'success');
+      } catch (err) {
+        if (uploading) uploading.classList.add('hidden');
+        if (placeholder) placeholder.classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+        showToast('上传失败：' + err.message, 'error');
+      }
     }
 
     // ==================== 站点设置 ====================
@@ -1652,6 +1951,10 @@
                 <span class="text-white">${DB.get('timeline', []).length} 条</span>
               </div>
               <div class="flex justify-between py-2 border-b border-white/5">
+                <span class="text-cinema-gray">代言数据</span>
+                <span class="text-white">${DB.get('endorsements', []).length} 条</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-white/5">
                 <span class="text-cinema-gray">图片记录</span>
                 <span class="text-white">${DB.get('images', []).length} 条</span>
               </div>
@@ -1670,6 +1973,7 @@
         exportTime: new Date().toISOString(),
         works: DB.get('works', []),
         timeline: DB.get('timeline', []),
+        endorsements: DB.get('endorsements', []),
         settings: DB.get('settings', {}),
         images: DB.get('images', []),
       };
@@ -1692,6 +1996,7 @@
           const data = JSON.parse(ev.target.result);
           if (data.works) DB.set('works', data.works);
           if (data.timeline) DB.set('timeline', data.timeline);
+          if (data.endorsements) DB.set('endorsements', data.endorsements);
           if (data.settings) DB.set('settings', data.settings);
           if (data.images) DB.set('images', data.images);
           showToast('数据导入成功');
@@ -1714,6 +2019,7 @@
             const data = JSON.parse(ev.target.result);
             if (data.works) DB.set('works', data.works);
             if (data.timeline) DB.set('timeline', data.timeline);
+            if (data.endorsements) DB.set('endorsements', data.endorsements);
             if (data.settings) DB.set('settings', data.settings);
             if (data.images) DB.set('images', data.images);
             showToast('数据导入成功');
