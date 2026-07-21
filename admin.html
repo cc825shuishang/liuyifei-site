@@ -1363,6 +1363,25 @@
     }
 
     // ==================== 同步 data.json 到 GitHub（供前台动态读取） ====================
+    // 从 GitHub 拉取最新 data.json，覆盖本地 localStorage
+    async function pullDataJson() {
+      try {
+        const res = await fetch('data.json?t=' + Date.now());
+        if (!res.ok) return false;
+        const data = await res.json();
+        if (!data || typeof data !== 'object') return false;
+        // 覆盖本地数据
+        if (data.works) DB.set('works', data.works);
+        if (data.timeline) DB.set('timeline', data.timeline);
+        if (data.endorsements) DB.set('endorsements', data.endorsements);
+        if (data.settings) DB.set('settings', data.settings);
+        if (data.images) DB.set('images', data.images);
+        return true;
+      } catch(e) {
+        return false;
+      }
+    }
+
     async function syncDataJson() {
       const cfg = getGitHubConfig();
       if (!cfg.token || !cfg.user || !cfg.repo) return;
@@ -2101,6 +2120,7 @@
     function confirmResetData() {
       DB.set('works', DEFAULT_DATA.works);
       DB.set('timeline', DEFAULT_DATA.timeline);
+      DB.set('endorsements', DEFAULT_DATA.endorsements);
       DB.set('settings', DEFAULT_DATA.settings);
       DB.set('images', DEFAULT_DATA.images);
       closeModal();
@@ -2141,13 +2161,22 @@
     document.getElementById('logout-btn').addEventListener('click', logout);
 
     // ==================== 显示管理面板 ====================
-    function showAdmin() {
+    async function showAdmin() {
       document.getElementById('login-screen').classList.add('hidden');
       document.getElementById('admin-panel').classList.remove('hidden');
+      // 先用本地数据渲染一次（立即可见）
       navigateTo('dashboard');
       lucide.createIcons();
-      // 登录后自动同步一次 data.json 到前台
-      setTimeout(() => { syncDataJson().catch(() => {}); }, 1500);
+      // 从 GitHub 拉取最新 data.json，覆盖本地（保证后台与前台一致）
+      try {
+        const pulled = await pullDataJson();
+        if (pulled) {
+          // 拉取成功，重新渲染当前页面
+          navigateTo(currentPage || 'dashboard');
+          lucide.createIcons();
+          showToast('已从线上同步最新数据', 'success');
+        }
+      } catch(e) {}
     }
 
     // ==================== 时间显示 ====================
