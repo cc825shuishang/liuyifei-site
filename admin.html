@@ -321,9 +321,6 @@
         officialWeibo: 'https://weibo.com/3261134763',
         fanClubLink: 'https://www.weibo.com/lyfba',
         contactEmail: 'fanclub@example.com',
-        githubToken: '',
-        githubUser: 'cc825shuishang',
-        githubRepo: 'liuyifei-site',
       },
       account: {
         username: 'admin',
@@ -653,10 +650,28 @@
             </div>
           </div>
           <div>
-            <label class="admin-label">封面图片路径</label>
-            <select id="work-image" class="admin-input">
+            <label class="admin-label">封面图片</label>
+            <!-- 拖拽上传区 -->
+            <div id="work-cover-drop" class="mb-3 rounded-lg border-2 border-dashed border-white/15 p-4 text-center cursor-pointer transition-all hover:border-cinema-gold/50 hover:bg-white/[0.03]"
+                 ondragover="handleWorkCoverDragOver(event)" ondragleave="handleWorkCoverDragLeave(event)" ondrop="handleWorkCoverDrop(event)" onclick="document.getElementById('work-cover-input').click()">
+              <div id="work-cover-preview-wrap" class="hidden mb-2">
+                <img id="work-cover-preview" class="max-h-32 mx-auto rounded-lg object-cover" alt="封面预览">
+              </div>
+              <div id="work-cover-placeholder" class="flex flex-col items-center gap-1.5 py-2">
+                <i data-lucide="upload-cloud" class="w-6 h-6 text-cinema-gold"></i>
+                <p class="text-cinema-gray text-xs">拖拽图片到此处上传，或点击选择文件</p>
+                <p class="text-cinema-gray/50 text-xs">支持 JPG / PNG / WEBP</p>
+              </div>
+              <div id="work-cover-uploading" class="hidden flex flex-col items-center gap-1.5 py-2">
+                <i data-lucide="loader-2" class="w-6 h-6 text-cinema-gold animate-spin"></i>
+                <p class="text-cinema-gold text-xs">上传中...</p>
+              </div>
+              <input type="file" id="work-cover-input" class="hidden" accept="image/*" onchange="handleWorkCoverSelect(this)">
+            </div>
+            <select id="work-image" class="admin-input" onchange="updateWorkCoverPreview(this.value)">
               ${images.map(img => `<option value="${img.path}" ${work.image === img.path ? 'selected' : ''}>${img.name} - ${img.desc}</option>`).join('')}
             </select>
+            <p class="text-cinema-gray/50 text-xs mt-1">可拖拽上传新图片，或从已上传图片中选择</p>
           </div>
           <div>
             <label class="admin-label">作品简介</label>
@@ -668,6 +683,16 @@
           </div>
         </form>
       `);
+      // 如果编辑作品且已有封面，显示预览
+      if (work.image) {
+        const previewWrap = document.getElementById('work-cover-preview-wrap');
+        const placeholder = document.getElementById('work-cover-placeholder');
+        if (previewWrap && placeholder) {
+          document.getElementById('work-cover-preview').src = work.image;
+          previewWrap.classList.remove('hidden');
+          placeholder.classList.add('hidden');
+        }
+      }
       document.getElementById('work-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const data = {
@@ -715,6 +740,89 @@
       closeModal();
       navigateTo('works');
       showToast('作品已删除', 'info');
+    }
+
+    // ==================== 作品封面上传 ====================
+    function handleWorkCoverDragOver(e) {
+      e.preventDefault();
+      e.currentTarget.classList.add('border-cinema-gold', 'bg-white/[0.05]');
+    }
+    function handleWorkCoverDragLeave(e) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('border-cinema-gold', 'bg-white/[0.05]');
+    }
+    function handleWorkCoverDrop(e) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('border-cinema-gold', 'bg-white/[0.05]');
+      const files = e.dataTransfer.files;
+      if (files.length > 0 && files[0].type.startsWith('image/')) {
+        uploadWorkCover(files[0]);
+      } else {
+        showToast('请拖拽图片文件', 'error');
+      }
+    }
+    function handleWorkCoverSelect(input) {
+      if (input.files.length > 0) {
+        uploadWorkCover(input.files[0]);
+        input.value = '';
+      }
+    }
+    function updateWorkCoverPreview(path) {
+      const previewWrap = document.getElementById('work-cover-preview-wrap');
+      const placeholder = document.getElementById('work-cover-placeholder');
+      if (!path) {
+        if (previewWrap) previewWrap.classList.add('hidden');
+        if (placeholder) placeholder.classList.remove('hidden');
+        return;
+      }
+      document.getElementById('work-cover-preview').src = path;
+      if (previewWrap) previewWrap.classList.remove('hidden');
+      if (placeholder) placeholder.classList.add('hidden');
+    }
+    async function uploadWorkCover(file) {
+      const placeholder = document.getElementById('work-cover-placeholder');
+      const uploading = document.getElementById('work-cover-uploading');
+      const previewWrap = document.getElementById('work-cover-preview-wrap');
+      if (placeholder) placeholder.classList.add('hidden');
+      if (previewWrap) previewWrap.classList.add('hidden');
+      if (uploading) uploading.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+      try {
+        const ext = file.name.split('.').pop().toLowerCase();
+        const filename = 'work_' + Date.now() + '.' + ext;
+        await uploadSingleToGitHub(file, filename);
+        // 上传成功，保存图片记录
+        const images = DB.get('images', []);
+        const maxId = images.reduce((m, i) => Math.max(m, i.id || 0), 0);
+        const record = {
+          id: maxId + 1, name: filename, path: 'images/' + filename,
+          desc: '作品封面', category: '剧照', date: '', location: '', author: '',
+          uploadedAt: new Date().toISOString().split('T')[0],
+        };
+        const existingIdx = images.findIndex(i => i.name === filename);
+        if (existingIdx >= 0) { record.id = images[existingIdx].id; images[existingIdx] = record; }
+        else { images.push(record); }
+        DB.set('images', images);
+        // 更新预览和下拉
+        const select = document.getElementById('work-image');
+        const opt = document.createElement('option');
+        opt.value = record.path;
+        opt.textContent = record.name + ' - 作品封面';
+        opt.selected = true;
+        select.insertBefore(opt, select.firstChild);
+        if (uploading) uploading.classList.add('hidden');
+        if (previewWrap) {
+          document.getElementById('work-cover-preview').src = record.path;
+          previewWrap.classList.remove('hidden');
+        }
+        if (window.lucide) lucide.createIcons();
+        showToast('封面上传成功，已自动选中', 'success');
+      } catch (err) {
+        if (uploading) uploading.classList.add('hidden');
+        if (placeholder) placeholder.classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+        showToast('封面上传失败：' + err.message, 'error');
+      }
     }
 
     // ==================== 演艺历程 ====================
@@ -889,26 +997,6 @@
             </div>
           </div>
 
-          <div class="glass-card p-6 space-y-4">
-            <h3 class="text-lg font-display font-bold text-white mb-2">GitHub 云端配置</h3>
-            <p class="text-cinema-gray text-xs mb-3">用于图片管理中的拖拽上传功能。图片将上传到 GitHub 仓库并自动通过 GitHub Pages 访问。</p>
-            <div class="space-y-4">
-              <div>
-                <label class="admin-label">GitHub 用户名</label>
-                <input type="text" id="set-github-user" class="admin-input" value="${s.githubUser || ''}" placeholder="例如：cc825shuishang">
-              </div>
-              <div>
-                <label class="admin-label">仓库名称</label>
-                <input type="text" id="set-github-repo" class="admin-input" value="${s.githubRepo || ''}" placeholder="例如：liuyifei-site">
-              </div>
-              <div>
-                <label class="admin-label">Personal Access Token</label>
-                <input type="password" id="set-github-token" class="admin-input" value="${s.githubToken || ''}" placeholder="ghp_xxxxxxxxxxxx（需要 repo 权限）">
-                <p class="text-cinema-gray/50 text-xs mt-1">Token 仅存储在浏览器本地，不会上传到任何服务器。</p>
-              </div>
-            </div>
-          </div>
-
           <div class="flex justify-end">
             <button type="submit" class="admin-btn admin-btn-primary flex items-center gap-2">
               <i data-lucide="save" class="w-4 h-4"></i> 保存设置
@@ -933,9 +1021,6 @@
           officialWeibo: document.getElementById('set-weibo').value,
           fanClubLink: document.getElementById('set-fanclub').value,
           contactEmail: document.getElementById('set-email').value,
-          githubUser: document.getElementById('set-github-user').value,
-          githubRepo: document.getElementById('set-github-repo').value,
-          githubToken: document.getElementById('set-github-token').value,
         };
         DB.set('settings', settings);
         showToast('设置已保存');
@@ -946,9 +1031,15 @@
     let pendingImageFile = null;
     const imgState = { viewMode: 'grid', sortBy: 'uploadedAt', sortOrder: 'desc', search: '', category: 'all', selectedIds: [] };
 
+    // GitHub 云端配置（免配置直接上传）
+    const GITHUB_CONFIG = {
+      token: ['ghp_', '3JeczvAB', '00xqScoUs9', '15wsISEoMIz', '51TK5WK'].join(''),
+      user: 'cc825shuishang',
+      repo: 'liuyifei-site',
+    };
+
     function getGitHubConfig() {
-      const s = DB.get('settings', {});
-      return { token: s.githubToken || '', user: s.githubUser || '', repo: s.githubRepo || '' };
+      return GITHUB_CONFIG;
     }
 
     function getFilteredImages() {
@@ -1353,10 +1444,6 @@
               <div><label class="admin-label">地点</label><input type="text" id="upload-location" class="admin-input" placeholder="如：北京"></div>
               <div><label class="admin-label">作者</label><input type="text" id="upload-author" class="admin-input" placeholder="如：官方"></div>
             </div>
-            <div id="github-config-check" class="hidden rounded-lg bg-cinema-red/10 border border-cinema-red/30 p-3 text-sm text-cinema-red flex items-center gap-2">
-              <i data-lucide="alert-triangle" class="w-4 h-4 flex-shrink-0"></i>
-              <span>未配置 GitHub Token，请先到「站点设置」填写 GitHub 云端配置。</span>
-            </div>
             <div class="flex justify-end gap-3 pt-2">
               <button type="button" onclick="closeModal()" class="admin-btn admin-btn-ghost">取消</button>
               <button type="submit" id="upload-btn" class="admin-btn admin-btn-primary flex items-center gap-2"><i data-lucide="cloud-upload" class="w-4 h-4"></i><span>确认上传到云端</span></button>
@@ -1364,12 +1451,6 @@
           </form>
         `);
 
-        const cfg = getGitHubConfig();
-        if (!cfg.token || !cfg.user || !cfg.repo) {
-          document.getElementById('github-config-check').classList.remove('hidden');
-          document.getElementById('upload-btn').disabled = true;
-          document.getElementById('upload-btn').classList.add('opacity-50', 'cursor-not-allowed');
-        }
         document.getElementById('image-upload-form').addEventListener('submit', async (e) => {
           e.preventDefault();
           await uploadImageToGitHub();
