@@ -114,7 +114,7 @@
     <!-- 背景图片 -->
     <div class="absolute inset-0 z-0">
       <div class="absolute inset-0 bg-gradient-to-b from-cinema-black/60 via-cinema-black/40 to-cinema-black z-10"></div>
-      <div class="absolute inset-0 bg-[url('images/hero.jpg')] bg-cover bg-center animate-slow-zoom"></div>
+      <div class="absolute inset-0 bg-[url('images/hero.jpg')] bg-cover bg-center animate-slow-zoom" id="hero-bg"></div>
     </div>
     
     <!-- 装饰元素 -->
@@ -165,6 +165,7 @@
               src="images/about.jpg" 
               alt="刘亦菲写真" 
               class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              id="about-img"
             >
           </div>
           <!-- 数据卡片 -->
@@ -197,7 +198,7 @@
             </p>
           </div>
           
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-10">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-10" id="stats-grid">
             <div class="text-center p-4 glass-card">
               <p class="text-2xl font-display font-bold text-cinema-gold">2002</p>
               <p class="text-xs text-cinema-gray mt-1">出道年份</p>
@@ -367,7 +368,7 @@
         <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-cinema-gold/50 via-cinema-gold/30 to-transparent"></div>
         
         <!-- 时间线项目 -->
-        <div class="space-y-12">
+        <div class="space-y-12" id="timeline-list">
           <div class="relative pl-12 md:pl-0">
             <div class="absolute left-0 md:left-1/2 md:-translate-x-1/2 w-8 h-8 rounded-full bg-cinema-gold/20 border-2 border-cinema-gold flex items-center justify-center">
               <div class="w-3 h-3 rounded-full bg-cinema-gold"></div>
@@ -487,7 +488,7 @@
         <p class="text-cinema-gray max-w-2xl mx-auto">以东方之美，传递品牌力量。</p>
       </div>
 
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="endorsements-grid">
         <!-- 代言卡片 1 -->
         <div class="glass-card overflow-hidden group hover:border-cinema-gold/50 transition-all duration-300">
           <div class="aspect-square overflow-hidden bg-cinema-darker">
@@ -733,7 +734,7 @@
         
         // 筛选作品
         const filter = btn.dataset.filter;
-        workItems.forEach(item => {
+        document.querySelectorAll('.work-item').forEach(item => {
           if (filter === 'all' || item.dataset.category === filter) {
             item.style.display = 'block';
             setTimeout(() => {
@@ -773,6 +774,144 @@
       el.style.transition = `opacity 0.6s ease-out ${index * 0.05}s, transform 0.6s ease-out ${index * 0.05}s`;
       observer.observe(el);
     });
+  </script>
+
+  <!-- ==================== 渐进增强：动态读取后台数据（失败则保留静态内容） ==================== -->
+  <script>
+    (async function() {
+      try {
+        const res = await fetch('data.json?t=' + Date.now());
+        if (!res.ok) return;
+        const data = await res.json();
+        const v = data.version || Date.now();
+        const imgSrc = (path) => path ? path + '?v=' + v : path;
+        const typeLabel = { tv: '电视剧', movie: '电影' };
+
+        // 1. Hero 背景图
+        const heroImg = (data.images || []).find(i => i.name === 'hero.jpg');
+        if (heroImg) {
+          const heroBg = document.getElementById('hero-bg');
+          if (heroBg) heroBg.style.backgroundImage = "url('" + imgSrc(heroImg.path) + "')";
+        }
+
+        // 2. About 图片
+        const aboutImg = (data.images || []).find(i => i.name === 'about.jpg');
+        if (aboutImg) {
+          const aboutEl = document.getElementById('about-img');
+          if (aboutEl) aboutEl.src = imgSrc(aboutImg.path);
+        }
+
+        // 3. 统计数据
+        if (data.settings) {
+          const s = data.settings;
+          const grid = document.getElementById('stats-grid');
+          if (grid) {
+            grid.innerHTML =
+              '<div class="text-center p-4 glass-card"><p class="text-2xl font-display font-bold text-cinema-gold">' + (s.debutYear || '2002') + '</p><p class="text-xs text-cinema-gray mt-1">出道年份</p></div>' +
+              '<div class="text-center p-4 glass-card"><p class="text-2xl font-display font-bold text-cinema-gold">' + (s.worksCount || '28') + '</p><p class="text-xs text-cinema-gray mt-1">影视作品</p></div>' +
+              '<div class="text-center p-4 glass-card"><p class="text-2xl font-display font-bold text-cinema-gold">' + (s.awardsCount || '12+') + '</p><p class="text-xs text-cinema-gray mt-1">获奖荣誉</p></div>' +
+              '<div class="text-center p-4 glass-card"><p class="text-2xl font-display font-bold text-cinema-gold">' + (s.weiboFollowers || '7400W+') + '</p><p class="text-xs text-cinema-gray mt-1">微博粉丝</p></div>';
+          }
+        }
+
+        // 4. 作品卡片
+        if (data.works && data.works.length) {
+          const grid = document.getElementById('works-grid');
+          if (grid) {
+            grid.innerHTML = data.works.map(function(w) {
+              return '<div class="work-item ' + (w.type || 'tv') + ' group cursor-pointer" data-category="' + (w.type || 'tv') + '">' +
+                '<div class="glass-card overflow-hidden transition-all duration-300 hover:border-cinema-gold/50">' +
+                  '<div class="aspect-[4/3] overflow-hidden">' +
+                    '<img src="' + imgSrc(w.image) + '" alt="' + (w.title || '') + '" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.style.opacity=0.15">' +
+                  '</div>' +
+                  '<div class="p-6">' +
+                    '<div class="flex items-center justify-between mb-2">' +
+                      '<span class="text-xs text-cinema-gold px-2 py-1 bg-cinema-gold/10 rounded">' + (typeLabel[w.type] || w.type || '') + '</span>' +
+                      '<span class="text-xs text-cinema-gray">' + (w.year || '') + '</span>' +
+                    '</div>' +
+                    '<h3 class="text-xl font-display font-bold text-white mb-2 group-hover:text-cinema-gold transition-colors">' + (w.title || '') + '</h3>' +
+                    '<p class="text-sm text-cinema-gray mb-3">饰演：' + (w.role || '') + '</p>' +
+                    '<p class="text-sm text-cinema-gray/80 line-clamp-2">' + (w.desc || '') + '</p>' +
+                  '</div>' +
+                '</div>' +
+              '</div>';
+            }).join('');
+          }
+        }
+
+        // 5. 时间线
+        if (data.timeline && data.timeline.length) {
+          const list = document.getElementById('timeline-list');
+          if (list) {
+            list.innerHTML = data.timeline.map(function(t, i) {
+              var isRight = i % 2 === 0;
+              var sideClass = isRight ? 'md:w-1/2 md:pr-12 md:ml-auto md:text-left' : 'md:w-1/2 md:pl-12 md:mr-auto md:text-left';
+              var inner;
+              if (t.image) {
+                inner = '<div class="flex gap-4">' +
+                  '<div class="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-cinema-darker">' +
+                    '<img src="' + imgSrc(t.image) + '" alt="' + (t.title || '') + '" class="w-full h-full object-cover" onerror="this.parentElement.style.display=\'none\'">' +
+                  '</div>' +
+                  '<div class="flex-1 min-w-0">' +
+                    '<span class="text-cinema-gold font-display font-bold text-xl">' + (t.year || '') + '</span>' +
+                    '<h3 class="text-lg font-bold text-white mt-2 mb-2">' + (t.title || '') + '</h3>' +
+                    '<p class="text-cinema-gray text-sm">' + (t.desc || '') + '</p>' +
+                  '</div>' +
+                '</div>';
+              } else {
+                inner = '<span class="text-cinema-gold font-display font-bold text-xl">' + (t.year || '') + '</span>' +
+                  '<h3 class="text-lg font-bold text-white mt-2 mb-2">' + (t.title || '') + '</h3>' +
+                  '<p class="text-cinema-gray text-sm">' + (t.desc || '') + '</p>';
+              }
+              return '<div class="relative pl-12 md:pl-0">' +
+                '<div class="absolute left-0 md:left-1/2 md:-translate-x-1/2 w-8 h-8 rounded-full bg-cinema-gold/20 border-2 border-cinema-gold flex items-center justify-center">' +
+                  '<div class="w-3 h-3 rounded-full bg-cinema-gold"></div>' +
+                '</div>' +
+                '<div class="' + sideClass + '">' +
+                  '<div class="glass-card p-6 ' + (t.image ? 'overflow-hidden' : '') + '">' + inner + '</div>' +
+                '</div>' +
+              '</div>';
+            }).join('');
+          }
+        }
+
+        // 6. 代言商务
+        if (data.endorsements && data.endorsements.length) {
+          const grid = document.getElementById('endorsements-grid');
+          if (grid) {
+            grid.innerHTML = data.endorsements.map(function(e) {
+              var imgHtml = e.image
+                ? '<img src="' + imgSrc(e.image) + '" alt="' + (e.brand || '') + '" class="w-full h-full object-cover">'
+                : '<div class="w-full h-full flex items-center justify-center text-cinema-gold/30"><i data-lucide="image" class="w-12 h-12"></i></div>';
+              return '<div class="glass-card overflow-hidden group hover:border-cinema-gold/50 transition-all duration-300">' +
+                '<div class="aspect-square overflow-hidden bg-cinema-darker">' + imgHtml + '</div>' +
+                '<div class="p-5">' +
+                  '<h3 class="text-lg font-display font-bold text-white mb-1">' + (e.brand || '') + '</h3>' +
+                  '<p class="text-cinema-gray text-sm">' + (e.desc || '') + '</p>' +
+                '</div>' +
+              '</div>';
+            }).join('');
+          }
+        }
+
+        // 7. 粉丝/微博链接
+        if (data.settings) {
+          var s = data.settings;
+          if (s.fanClubLink) {
+            document.querySelectorAll('a[href="https://www.weibo.com/lyfba"]').forEach(function(a) { a.href = s.fanClubLink; });
+          }
+          if (s.officialWeibo) {
+            document.querySelectorAll('a[href="https://weibo.com/3261134763"]').forEach(function(a) { a.href = s.officialWeibo; });
+          }
+        }
+
+        // 重新初始化图标
+        if (window.lucide) lucide.createIcons();
+      } catch(e) {
+        // 静默失败，保留静态内容
+        console.warn('data.json 加载失败，使用静态内容', e);
+      }
+    })();
   </script>
 </body>
 </html>
