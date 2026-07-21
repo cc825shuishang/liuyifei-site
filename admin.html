@@ -296,6 +296,25 @@
       }
     };
 
+    // ==================== 数据同步：后台保存时自动上传 data.json 到 GitHub ====================
+    let _syncEnabled = false;
+    let _syncTimer = null;
+    const _origDBSet = DB.set.bind(DB);
+    DB.set = function(key, value) {
+      _origDBSet(key, value);
+      if (_syncEnabled && ['works','timeline','endorsements','settings','images'].includes(key)) {
+        if (_syncTimer) clearTimeout(_syncTimer);
+        _syncTimer = setTimeout(() => {
+          if (typeof syncDataJson === 'function') {
+            syncDataJson().catch((err) => {
+              console.warn('data.json 同步失败:', err);
+              showToast('前台同步失败，本地已保存', 'error');
+            });
+          }
+        }, 800);
+      }
+    };
+
     // ==================== 默认数据 ====================
     const DEFAULT_DATA = {
       works: [
@@ -352,11 +371,13 @@
     function initData() {
       if (!DB.get('works')) DB.set('works', DEFAULT_DATA.works);
       if (!DB.get('timeline')) DB.set('timeline', DEFAULT_DATA.timeline);
+      if (!DB.get('endorsements')) DB.set('endorsements', DEFAULT_DATA.endorsements);
       if (!DB.get('settings')) DB.set('settings', DEFAULT_DATA.settings);
       if (!DB.get('account')) DB.set('account', DEFAULT_DATA.account);
       if (!DB.get('images')) DB.set('images', DEFAULT_DATA.images);
     }
     initData();
+    _syncEnabled = true; // 初始化完成，启用 data.json 自动同步
 
     // ==================== 认证 ====================
     function isLoggedIn() {
@@ -1339,6 +1360,36 @@
 
     function getGitHubConfig() {
       return GITHUB_CONFIG;
+    }
+
+    // ==================== 同步 data.json 到 GitHub（供前台动态读取） ====================
+    async function syncDataJson() {
+      const cfg = getGitHubConfig();
+      if (!cfg.token || !cfg.user || !cfg.repo) return;
+      const data = {
+        version: Date.now(),
+        works: DB.get('works', []),
+        timeline: DB.get('timeline', []),
+        endorsements: DB.get('endorsements', []),
+        settings: DB.get('settings', {}),
+        images: DB.get('images', []),
+      };
+      const jsonStr = JSON.stringify(data, null, 2);
+      const content = btoa(unescape(encodeURIComponent(jsonStr)));
+      const path = 'data.json';
+      const apiURL = `https://api.github.com/repos/${cfg.user}/${cfg.repo}/contents/${path}`;
+      let sha = null;
+      try {
+        const checkRes = await fetch(apiURL, { headers: { 'Authorization': `token ${cfg.token}`, 'Accept': 'application/vnd.github.v3+json' } });
+        if (checkRes.ok) { sha = (await checkRes.json()).sha; }
+      } catch(e) {}
+      const body = { message: sha ? 'Update site data (auto sync)' : 'Init site data (auto sync)', content };
+      if (sha) body.sha = sha;
+      const res = await fetch(apiURL, { method: 'PUT', headers: { 'Authorization': `token ${cfg.token}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || 'sync failed');
+      }
     }
 
     function getFilteredImages() {
