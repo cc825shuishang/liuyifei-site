@@ -1,0 +1,47 @@
+{
+  "version": 1721530000000,
+  "works": [
+    {"id": 1, "title": "仙剑奇侠传", "year": 2005, "type": "tv", "role": "赵灵儿", "image": "images/xianjian.jpg", "desc": "古装仙侠剧经典之作，饰演天真善良、背负使命的南诏国公主赵灵儿，成为一代人的青春记忆。"},
+    {"id": 2, "title": "神雕侠侣", "year": 2006, "type": "tv", "role": "小龙女", "image": "images/shendiao.jpg", "desc": "金庸武侠经典改编，饰演不食人间烟火的小龙女，成为无数观众心中的神仙姐姐。"},
+    {"id": 3, "title": "花木兰", "year": 2020, "type": "movie", "role": "花木兰", "image": "images/mulan.jpg", "desc": "迪士尼真人版电影，刘亦菲成为首位主演迪士尼真人公主电影的华人女演员，展现东方女性的英勇与坚韧。"},
+    {"id": 4, "title": "梦华录", "year": 2022, "type": "tv", "role": "赵盼儿", "image": "images/menghualu.jpg", "desc": "古装励志剧，演绎北宋时期三位女子在京城创业奋斗的故事，尽显古典东方美与独立女性力量。"},
+    {"id": 5, "title": "去有风的地方", "year": 2023, "type": "tv", "role": "许红豆", "image": "images/quyoufeng.jpg", "desc": "田园治愈剧，讲述都市白领在云南大理寻找内心平静与生活意义的旅程。"},
+    {"id": 6, "title": "玫瑰的故事", "year": 2024, "type": "tv", "role": "黄亦玫", "image": "images/meigui.jpg", "desc": "都市情感剧，讲述一位女性在爱情、事业与自我成长中的多重蜕变，引发广泛共鸣。"}
+  ],
+  "timeline": [
+    {"id": 1, "year": 2024, "title": "《玫瑰的故事》热播", "desc": "主演都市剧《玫瑰的故事》饰演黄亦玫，以层次丰富的表演再度引发热议，并获电视剧导演大会年度女主角奖。", "image": "images/meigui.jpg"},
+    {"id": 2, "year": 2022, "title": "小荧幕回归之作", "desc": "主演《梦华录》饰演赵盼儿，凭该角色获第十三届澳门国际电视节金莲花最佳女主角奖。", "image": "images/menghualu.jpg"},
+    {"id": 3, "year": 2020, "title": "走向国际舞台", "desc": "主演迪士尼真人电影《花木兰》，成为首位华人迪士尼真人公主，并提名好莱坞评论家选择超级奖动作电影最佳女演员。", "image": "images/mulan.jpg"},
+    {"id": 4, "year": 2014, "title": "首获影后", "desc": "凭借古装片《铜雀台》中灵雎一角，获得第5届澳门国际电影节最佳女主角奖。", "image": ""},
+    {"id": 5, "year": 2006, "title": "首位金鹰女神", "desc": "主演《神雕侠侣》小龙女一角受到广泛关注；同年成为金鹰节历史上首位金鹰女神。", "image": "images/shendiao.jpg"},
+    {"id": 6, "year": 2002, "title": "正式出道", "desc": "15岁考入北京电影学院，同年出演《金粉世家》白秀珠一角，开启演艺生涯。", "image": ""}
+  ],
+  "endorsements": [
+    {"id": 1, "brand": "品牌代言位", "image": "", "desc": "待添加品牌信息", "link": "", "category": "代言"},
+    {"id": 2, "brand": "品牌代言位", "image": "", "desc": "待添加品牌信息", "link": "", "category": "代言"},
+    {"id": 3, "brand": "品牌代言位", "image": "", "desc": "待添加品牌信息", "link": "", "category": "代言"},
+    {"id": 4, "brand": "品牌代言位", "image": "", "desc": "待添加品牌信息", "link": "", "category": "代言"}
+  ],
+  "settings": {
+    "siteTitle": "刘亦菲官方网站",
+    "siteSubtitle": "以东方之美，演绎万千角色",
+    "siteDesc": "从神仙姐姐到当代花木兰，用二十年光影沉淀，诠释每一个独一无二的灵魂。",
+    "debutYear": "2002",
+    "worksCount": "28",
+    "awardsCount": "12+",
+    "weiboFollowers": "7400W+",
+    "officialWeibo": "https://weibo.com/3261134763",
+    "fanClubLink": "https://www.weibo.com/lyfba",
+    "contactEmail": "fanclub@example.com"
+  },
+  "images": [
+    {"id": 1, "name": "hero.jpg", "path": "images/hero.jpg", "desc": "主海报/首页背景", "date": "2025-12-01", "location": "北京", "author": "官方", "category": "海报", "uploadedAt": "2026-07-21"},
+    {"id": 2, "name": "about.jpg", "path": "images/about.jpg", "desc": "关于演员写真", "date": "2024-06-15", "location": "上海", "author": "官方", "category": "写真", "uploadedAt": "2026-07-21"},
+    {"id": 3, "name": "xianjian.jpg", "path": "images/xianjian.jpg", "desc": "仙剑奇侠传剧照", "date": "2005-01-01", "location": "横店", "author": "唐人影视", "category": "剧照", "uploadedAt": "2026-07-21"},
+    {"id": 4, "name": "shendiao.jpg", "path": "images/shendiao.jpg", "desc": "神雕侠侣剧照", "date": "2006-03-01", "location": "象山", "author": "张纪中工作室", "category": "剧照", "uploadedAt": "2026-07-21"},
+    {"id": 5, "name": "mulan.jpg", "path": "images/mulan.jpg", "desc": "花木兰剧照", "date": "2020-09-04", "location": "新西兰", "author": "迪士尼", "category": "剧照", "uploadedAt": "2026-07-21"},
+    {"id": 6, "name": "menghualu.jpg", "path": "images/menghualu.jpg", "desc": "梦华录剧照", "date": "2022-06-02", "location": "襄阳", "author": "企鹅影视", "category": "剧照", "uploadedAt": "2026-07-21"},
+    {"id": 7, "name": "quyoufeng.jpg", "path": "images/quyoufeng.jpg", "desc": "去有风的地方剧照", "date": "2023-01-03", "location": "大理", "author": "芒果TV", "category": "剧照", "uploadedAt": "2026-07-21"},
+    {"id": 8, "name": "meigui.jpg", "path": "images/meigui.jpg", "desc": "玫瑰的故事剧照", "date": "2024-06-08", "location": "北京", "author": "央视", "category": "剧照", "uploadedAt": "2026-07-21"}
+  ]
+}
