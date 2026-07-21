@@ -1,5 +1,5 @@
 {
-  "version": 1784598777051,
+  "version": 1784598808392,
   "works": [
     {
       "id": 1,
@@ -233,6 +233,17 @@
       "location": "北京",
       "author": "央视",
       "category": "剧照",
+      "uploadedAt": "2026-07-21"
+    },
+    {
+      "id": 9,
+      "name": "work_1784598803950.jpg",
+      "path": "images/work_1784598803950.jpg",
+      "desc": "作品封面",
+      "category": "剧照",
+      "date": "",
+      "location": "",
+      "author": "",
       "uploadedAt": "2026-07-21"
     }
   ]
